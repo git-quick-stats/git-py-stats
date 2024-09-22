@@ -29,7 +29,7 @@ def handle_interactive_mode() -> None:
         '19': lambda: list_cmds.git_commits_per_hour(input("Enter author name: ")),
         '20': list_cmds.git_commits_per_timezone,
         '21': lambda: list_cmds.git_commits_per_timezone(input("Enter author name: ")),
-        '22': suggest_cmds.code_reviewers,
+        '22': suggest_cmds.suggest_reviewers,
     }
 
     while True:

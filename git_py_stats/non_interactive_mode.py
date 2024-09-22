@@ -34,7 +34,7 @@ def handle_non_interactive_mode(args) -> None:
         'commits_by_author_by_hour': lambda: list_cmds.git_commits_per_hour(args.commits_by_author_by_hour),
         'commits_by_timezone': list_cmds.git_commits_per_timezone,
         'commits_by_author_by_timezone': lambda: list_cmds.git_commits_per_timezone(args.commits_by_author_by_timezone),
-        'suggest_reviewers': suggest_cmds.code_reviewers,
+        'suggest_reviewers': suggest_cmds.suggest_reviewers,
     }
 
     # Call the appropriate function based on the command-line argument
