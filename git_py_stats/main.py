@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+
+"""
+Main entry point for Git Py Stats.
+"""
+
+import sys
+
+from git_py_stats.git_operations import check_git_repository
+from git_py_stats.arg_parser import parse_arguments
+from git_py_stats.interactive_mode import handle_interactive_mode
+from git_py_stats.non_interactive_mode import handle_non_interactive_mode
+
+
+def main() -> None:
+    """
+    Main function that handles both interactive and non-interactive modes.
+    """
+
+    # Check if we are inside a Git repository
+    if not check_git_repository():
+        print("This is not a Git repository.")
+        print("Please navigate to a Git repository and try again.")
+        sys.exit(1)
+
+    # Parse command-line arguments
+    args = parse_arguments()
+
+    # Non-Interactive Mode based on if we see command-line arguments
+    if len(sys.argv) > 1:
+        handle_non_interactive_mode(args)
+    else:
+        handle_interactive_mode()
+
+
+if __name__ == '__main__':
+    main()
+
