@@ -6,6 +6,9 @@ It offers a similar set of git statistics and reports, but it's built entirely
 using Python 3, providing improved cross-platform compatibility
 and ease of maintenance.
 
+![mainMenuScreenshot](https://github.com/user-attachments/assets/4c3f49d8-62a9-4208-a968-5270e36aa3b8)
+
+
 ## Why Git Py Stats?
 
 While `git-quick-stats` is a fantastic tool, it has some limitations due to its
@@ -87,10 +90,26 @@ Git Py Stats is currently in beta format. As such, it is missing the following:
     pip install -e .
     ```
 
-3. **Verify the Installation**:
+    Or you can run it locally without `pip` by doing the following
+    while inside the `git-py-stats` repo from Step 1:
+
+    ```bash
+    export PYTHONPATH=$(pwd):$PYTHONPATH
+    ```
+
+4. **Verify the Installation**:
+
+    While inside of a valid git repo, type the following:
 
     ```bash
     git-py-stats --help
+    ```
+
+    If you decided to use the `PYTHONPATH` method, commands will need
+    to be done in the following manner:
+
+    ```bash
+    python3 -m git_py_stats.main --help
     ```
 
 ### Using `setup.py`
@@ -100,7 +119,7 @@ If you prefer using `setup.py` directly:
 1. **Install the Package**:
 
     ```bash
-    python setup.py install
+    python3 setup.py install
     ```
 
 2. **Verify the Installation**:
@@ -176,7 +195,7 @@ This project uses Python's built-in `unittest` framework for testing.
     within the `git_py_stats/tests/` directory:
 
     ```bash
-    python -m unittest discover -s git_py_stats/tests
+    python3 -m unittest discover -s git_py_stats/tests
     ```
 
 3. **Run a Specific Test File**:
@@ -184,7 +203,7 @@ This project uses Python's built-in `unittest` framework for testing.
     To run a specific test file, you can use:
 
     ```bash
-    python -m unittest git_py_stats.tests.test_generate_cmds
+    python3 -m unittest git_py_stats.tests.test_generate_cmds
     ```
 
 #### Additional Tips
@@ -193,13 +212,13 @@ This project uses Python's built-in `unittest` framework for testing.
 - To view more detailed output, use the `-v` (verbose) flag:
 
     ```bash
-    python -m unittest discover -s git_py_stats/tests -v
+    python3 -m unittest discover -s git_py_stats/tests -v
     ```
 
 - To run all tests automatically and display a summary of results:
 
     ```bash
-    python -m unittest discover -s git_py_stats/tests
+    python3 -m unittest discover -s git_py_stats/tests
     ```
 
 ## Contribution
