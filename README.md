@@ -1,3 +1,4 @@
+
 # Git Py Stats
 
 Git Py Stats is a Python-based fork inspired by [git-quick-stats](https://github.com/arzzen/git-quick-stats).
@@ -11,15 +12,15 @@ While `git-quick-stats` is a fantastic tool, it has some limitations due to its
 reliance on Bash and external utilities:
 
 - **Cross-Platform Compatibility**: `git-quick-stats` can have issues running
- on different platforms. For example, macOS requires GNU versions of certain
- utilities for proper functionality.
+  on different platforms. For example, macOS requires GNU versions of certain
+  utilities for proper functionality.
 - **Dependency on External Tools**: Although it is written in Bash, it depends
- heavily on external tools like `awk`, `sed`, and `grep`,
- which may not be available or behave subtly different across systems.
+  heavily on external tools like `awk`, `sed`, and `grep`,
+  which may not be available or behave subtly different across systems.
 - **Robust File Generation**: `git-quick-stats` has the ability to export
- stats in JSON and CSV format, but they are home-grown implementations.
+  stats in JSON and CSV format, but they are home-grown implementations.
 - **Difficult to Test and Extend**: Bash scripts are inherently harder to test
- and extend compared to a Python-based solution.
+  and extend compared to a Python-based solution.
 
 Git Py Stats addresses these issues by leveraging Python's standard library,
 ensuring that it pulls in code tested by the Python team and works seamlessly
@@ -57,8 +58,8 @@ Git Py Stats is currently in beta format. As such, it is missing the following:
 
 ## Requirements
 
-- **Python 3.x**: Git Py Stats requires Python 3.x installed on your system.
- You can check your Python version with:
+- **Python 3.6+**: Git Py Stats requires Python 3.6 or higher installed on your system.
+  You can check your Python version with:
 
     ```bash
     python3 --version
@@ -150,21 +151,55 @@ git-py-stats --help
 
 ## Development
 
-- **`src/git_py_stats`**: Core package containing main functionality
-- **`tests`**: Contains test cases for the various modules
+This section is currently under development and is changing rapidly as we work
+on getting features added. The current structure is as follows:
 
-### Running Tests
+- **`git_py_stats/`**: Core package
+- **`git_py_stats/tests/`**: Test cases for the various modules
 
-1. **Install Testing Dependencies**:
+### Testing
+
+This project uses Python's built-in `unittest` framework for testing.
+
+#### Running Tests
+
+1. **Navigate to the Project Directory**:
 
     ```bash
-    pip install -r requirements-dev.txt
+    cd git-py-stats
     ```
 
-2. **Run Tests**:
+2. **Run All Tests**:
+
+    You can run all tests using the `unittest` discovery mode, which will
+    automatically find and execute all test files named `test_*.py`
+    within the `git_py_stats/tests/` directory:
 
     ```bash
-    pytest tests/
+    python -m unittest discover -s git_py_stats/tests
+    ```
+
+3. **Run a Specific Test File**:
+
+    To run a specific test file, you can use:
+
+    ```bash
+    python -m unittest git_py_stats.tests.test_generate_cmds
+    ```
+
+#### Additional Tips
+
+- Ensure that all test files follow the naming convention `test_*.py`.
+- To view more detailed output, use the `-v` (verbose) flag:
+
+    ```bash
+    python -m unittest discover -s git_py_stats/tests -v
+    ```
+
+- To run all tests automatically and display a summary of results:
+
+    ```bash
+    python -m unittest discover -s git_py_stats/tests
     ```
 
 ## Contribution
@@ -188,4 +223,3 @@ See the [LICENSE](LICENSE) file for more details.
 ## Author
 
 Tom Ice
-

@@ -2,6 +2,6 @@ include LICENSE
 include README.md
 include TODO.md
 recursive-include git_py_stats *
-recursive-include tests *
+recursive-include man *
 global-exclude *.pyc __pycache__/
 
