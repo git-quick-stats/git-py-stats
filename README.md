@@ -8,7 +8,6 @@ and ease of maintenance.
 
 ![mainMenuScreenshot](https://github.com/user-attachments/assets/4c3f49d8-62a9-4208-a968-5270e36aa3b8)
 
-
 ## Why Git Py Stats?
 
 While `git-quick-stats` is a fantastic tool, it has some limitations due to its
@@ -44,20 +43,51 @@ Git Py Stats aims to maintain feature parity with the original `git-quick-stats`
 
 and more in both interactive and non-interactive modes.
 
-## Missing Features
+## Feature Comparison
 
-Git Py Stats is currently in beta format. As such, it is missing the following:
+The following is a list of features that compares `git-py-stats` development
+with the capabilities `git-quick-stats` currently has. Completed means there
+exists essentially 1:1 functionality between the two projects. Stubbed means
+`git-py-stats` has the feature available, but it might not match the original
+project's version. Not Yet Implemented means it does not exist yet:
 
-- Git log since and until functionality
-- Git log limit functionality
-- Git log options functionality
-- Git pathspec functionality
-- Git merge view strategies
-- Git branch adjustability to customize what branch you're on
-- Color themes
-- Linux package installs (only installable via `pip` and locally currently)
-- macOS package installs
-- Lacks a Docker image
+| Feature                                         | Status                  | Description                                             |
+|-------------------------------------------------|-------------------------|---------------------------------------------------------|
+| **UI**                                          | Completed ✔️           | General UI when launching interactive mode              |
+| **Interactive Mode**                            | Completed ✔️           | Enables interactive sessions for user inputs.           |
+| **Non-interactive Mode**                        | Completed ✔️           | Allows usage without interactive prompts.               |
+| **Contribution Stats**                          | Completed ✔️           | Displays overall contribution statistics.               |
+| **Contribution Stats by Author**                | Completed ✔️           | Shows contribution stats by individual authors.         |
+| **Changelogs**                                  | Completed ✔️           | Lists commit logs over 10 last days of commits.         |
+| **Changelogs by Author**                        | Completed ✔️           | Filters changelogs based on the author.                 |
+| **Code Reviewers**                              | Completed ✔️           | Identifies code reviewers based on contribution.        |
+| **My Daily Stats**                              | Stubbed 🛠️             | Tracks daily statistics customized for the user.        |
+| **Output Daily Stats by Branch in CSV**         | Stubbed 🛠️             | Exports daily branch stats in CSV format.               |
+| **Save Git Log Output in JSON Format**          | Stubbed 🛠️             | Stores git logs in JSON.                                |
+| **Branch Tree View**                            | Stubbed 🛠️             | Visual representation of the branch hierarchy.          |
+| **All Branches (Sorted by Most Recent Commit)** | Stubbed 🛠️             | Lists all branches ordered by latest commit date.       |
+| **All Contributors (Sorted by Name)**           | Stubbed 🛠️             | Displays all contributors sorted alphabetically.        |
+| **New Contributors (Sorted by Email)**          | Stubbed 🛠️             | Lists new contributors sorted by their email addresses. |
+| **Git Commits per Author**                      | Stubbed 🛠️             | Counts commits made by each author.                     |
+| **Git Commits per Date**                        | Stubbed 🛠️             | Counts commits based on the date.                       |
+| **Git Commits per Month**                       | Stubbed 🛠️             | Counts commits based on the monthly.                    |
+| **Git Commits per Year**                        | Stubbed 🛠️             | Counts commits based on the year.                       |
+| **Git Commits per Weekday**                     | Stubbed 🛠️             | Counts commits based on the weekday.                    |
+| **Git Commits per Weekday by Author**           | Stubbed 🛠️             | Shows weekday commit counts by given author.            |
+| **Git Commits per Hour**                        | Stubbed 🛠️             | Counts commits based on the hour.                       |
+| **Git Commits per Hour by Author**              | Stubbed 🛠️             | Shows hourly commit count hour by given author.         |
+| **Git Commits per Timezone**                    | Stubbed 🛠️             | Counts commits based on timezones.                      |
+| **Git Commits per Timezone by Author**          | Stubbed 🛠️             | Shows timezone-based commit counts by given author.     |
+| **Since Variable Adjustable by User**           | Not Yet Implemented ❌ | Allows users to set the starting point for commit logs. |
+| **Until Variable Adjustable by User**           | Not Yet Implemented ❌ | Enables users to define the end point for commit logs.  |
+| **Pathspec Variable Adjustable by User**        | Not Yet Implemented ❌ | Filters commits based on specified path patterns.       |
+| **Merge View Variable Adjustable by User**      | Not Yet Implemented ❌ | Controls the inclusion of merge commits in views.       |
+| **Limit Variable Adjustable by User**           | Not Yet Implemented ❌ | Sets the maximum number of commits to display.          |
+| **Log Options Variable Adjustable by User**     | Not Yet Implemented ❌ | Customizes git log command options.                     |
+| **Legacy Theme**                                | Not Yet Implemented ❌ | Restores the previous visual theme of the application.  |
+| **Linux Package Install**                       | Not Yet Implemented ❌ | Allows Linux users to install via a package manager.    |
+| **macOS Package install**                       | Not Yet Implemented ❌ | Allows macOS users to install via brew.                 |
+| **Docker Development Image**                    | Not Yet Implemented ❌ | Provides a Docker development image for CI/CD.          |
 
 ## Requirements
 
@@ -97,7 +127,7 @@ Git Py Stats is currently in beta format. As such, it is missing the following:
     export PYTHONPATH=$(pwd):$PYTHONPATH
     ```
 
-4. **Verify the Installation**:
+3. **Verify the Installation**:
 
     While inside of a valid git repo, type the following:
 

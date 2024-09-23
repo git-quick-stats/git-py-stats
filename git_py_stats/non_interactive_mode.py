@@ -15,8 +15,8 @@ def handle_non_interactive_mode(args) -> None:
     non_interactive_map = {
         'detailed_git_stats': generate_cmds.contribution_stats_by_author,
         'git_stats_by_branch': lambda: generate_cmds.contribution_stats_by_author(args.git_stats_by_branch),
-        'changelogs': generate_cmds.git_changelogs_last_10_days,
-        'changelogs_by_author': lambda: generate_cmds.git_changelogs_last_10_days(args.changelogs_by_author),
+        'changelogs': generate_cmds.changelogs,
+        'changelogs_by_author': lambda: generate_cmds.changelogs(args.changelogs_by_author),
         'my_daily_stats': generate_cmds.my_daily_status,
         'csv_output_by_branch': generate_cmds.output_daily_stats_csv,
         'json_output': generate_cmds.save_git_log_output_json,

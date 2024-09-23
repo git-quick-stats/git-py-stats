@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+import datetime
 
 from git_py_stats import generate_cmds
 
@@ -26,17 +27,17 @@ class TestGenerateCmds(unittest.TestCase):
 
     # Silence stdout
     @patch('git_py_stats.generate_cmds.print')
-    def test_git_changelogs_last_10_days(self, mock_print) -> None:
+    def test_changelogs(self, mock_print) -> None:
         """
-        Test case for git_changelogs_last_10_days in generate_cmds.
+        Test case for changelogs in generate_cmds.
 
-        Checks if `git_changelogs_last_10_days` executes without errors and returns `None`.
+        Checks if `changelogs` executes without errors and returns `None`.
         Print is mocked to prevent actual output during testing.
 
         Verifies that the function returns `None` and that print was called at least once.
         """
         
-        self.assertIsNone(generate_cmds.git_changelogs_last_10_days())
+        self.assertIsNone(generate_cmds.changelogs())
         mock_print.assert_called()
 
 

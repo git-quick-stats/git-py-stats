@@ -4,7 +4,7 @@ Functions related to the 'Generate' section.
 
 import collections
 import csv
-import datetime
+from datetime import datetime, timedelta
 import json
 import os
 from typing import Optional, Dict, Any, List
@@ -126,8 +126,8 @@ def contribution_stats_by_author(branch: Optional[str] = None) -> None:
         files = len(stats['files'])
         commits = stats['commits']
         lines_changed = stats['lines_changed']
-        first_commit = datetime.datetime.fromtimestamp(stats['first_commit']).strftime('%a %b %d %H:%M:%S %Y %z')
-        last_commit = datetime.datetime.fromtimestamp(stats['last_commit']).strftime('%a %b %d %H:%M:%S %Y %z')
+        first_commit = datetime.fromtimestamp(stats['first_commit']).strftime('%a %b %d %H:%M:%S %Y %z')
+        last_commit = datetime.fromtimestamp(stats['last_commit']).strftime('%a %b %d %H:%M:%S %Y %z')
 
         # Calculate percentages
         insertions_pct = (insertions / total_insertions * 100) if total_insertions else 0
@@ -153,30 +153,77 @@ def contribution_stats_by_author(branch: Optional[str] = None) -> None:
     print(f"           commits:       {total_commits:<6} (100%)\n")
 
 
-
-def git_changelogs_last_10_days(author: Optional[str] = None) -> None:
+def changelogs(author: Optional[str] = None, limit: int = 10) -> None:
     """
-    Shows commit messages from the last 10 days. If an author is provided, 
-    it shows commit messages from that author.
+    Shows commit messages grouped by date, for the last 'limit' dates where commits occurred.
+
+    Args:
+        If an author is provided, it shows commit messages from that author.
+        Otherwise, it passes 'None' and shows commits from all authors.
     """
 
-    if author:
-        cmd = ['git', 'log', '--author', author, '--since=10.days', '--oneline']
-    else:
-        cmd = ['git', 'log', '--since=10.days', '--oneline']
+    # Initialize variables similar to the Bash version
+    # TODO: Refactor this when we add global adjustment capabilities
+    next_date = datetime.now().date()
+    author_option = f'--author={author}' if author else ''
+    merges_option = '--no-merges'  # Adjust as per the Bash global variable _merges
 
+    # Get unique commit dates
+    # Original version:
+    # git -c log.showSignature=false log --use-mailmap $_merges --format="%cd" --date=short "${_author}"
+    #     "$_since" "$_until" $_log_options $_pathspec
+    cmd = ['git', 'log', '--use-mailmap', merges_option, '--format=%cd', '--date=short']
+    if author_option:
+        cmd.append(author_option)
+
+    print('Git changelogs (last 10 commits)')
+
+    # Get commit dates
     output = run_git_command(cmd)
-    if output:
-        if author:
-            print(f"Git changelogs by {author} (last 10 days):")
-        else:
-            print("Git changelogs (last 10 days):")
-        print(output)
-    else:
-        if author:
-            print(f'No changelogs available for author {author} in the last 10 days.')
-        else:
-            print('No changelogs available in the last 10 days.')
+    if not output:
+        print("No commits found.")
+        return
+
+    # Process dates by splitting into date strings,
+    # removing dupes, sorting in reverse chrono order,
+    # and applying our limit defined above
+    dates = output.strip().split('\n')
+    dates = sorted(set(dates), reverse=True)
+    dates = dates[:limit]
+
+    # Create the date/day format of [YYYY-MM-DD] - Day of week
+    for date_str in dates:
+        date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        day_of_week = date.strftime('%A')
+        print(f"\n[{date_str} - {day_of_week}]")
+
+        since_date = (date - timedelta(days=1)).strftime('%Y-%m-%d')
+        until_date = next_date.strftime('%Y-%m-%d')
+
+        # Build git log command for the date range
+        # Note the space between the --format and *. This provides
+        # the space should there be multiple entries per date string
+        # Original version:
+        #  git -c log.showSignature=false log \
+        #      --use-mailmap $_merges --format=" * %s (%aN)" \
+        #      "${_author}" --since==$(date -d "$DATE - 1 day" +"%Y-%m-%d") \
+        #      --until=$next
+        cmd = [
+            'git', 'log', '--use-mailmap', merges_option,
+            '--format= * %s (%aN)',
+            f'--since={since_date}',
+            f'--until={until_date}'
+        ]
+        if author_option:
+            cmd.append(author_option)
+
+        # Output everything to the terminal
+        # Note the space added. This provides the initial space
+        # before the asterisk for every initial entry
+        output = run_git_command(cmd)
+        if output:
+            print(f" {output}")
+        next_date = date  # Update next_date for the next iteration
 
 
 def my_daily_status() -> None:

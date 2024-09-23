@@ -10,8 +10,8 @@ def handle_interactive_mode() -> None:
     interactive_map = {
         '1': generate_cmds.contribution_stats_by_author,
         '2': lambda: generate_cmds.contribution_stats_by_author(input("Enter branch name: ")),
-        '3': generate_cmds.git_changelogs_last_10_days,
-        '4': lambda: generate_cmds.git_changelogs_last_10_days(input("Enter author name: ")),
+        '3': generate_cmds.changelogs,
+        '4': lambda: generate_cmds.changelogs(input("Enter author name: ")),
         '5': generate_cmds.my_daily_status,
         '6': generate_cmds.output_daily_stats_csv,
         '7': generate_cmds.save_git_log_output_json,
