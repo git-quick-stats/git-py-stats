@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import patch
-import datetime
 
 from git_py_stats import generate_cmds
 
