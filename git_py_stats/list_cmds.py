@@ -3,59 +3,174 @@ Functions related to the 'List' section.
 """
 
 import collections
-import datetime
+from datetime import datetime, timezone
 from typing import Dict, Optional
 
 from git_py_stats.git_operations import run_git_command
 
 
-def branch_tree_view() -> None:
+def branch_tree() -> None:
     """
     Displays a visual graph of recent commits across all branches.
     """
+
+    # Since can be hardcoded for now. It'll be based on the earliest commit
+    # in the repo
+    earliest_commit_date = run_git_command(['git', 'log', '--reverse', '--format=%ad'])
+    if earliest_commit_date:
+        # Take the first line as the earliest commit date
+        first_commit_date = earliest_commit_date.split('\n')[0]
+        since = f"--since='{first_commit_date}'"
+    else:
+        # If no commits, set since to an empty string
+        since = ''
+
+    # Until will be current system's date and time
+    now = datetime.now(timezone.utc).astimezone()
+    until_formatted = now.strftime('%a, %d %b %Y %H:%M:%S %Z')
+    until = f"--until='{until_formatted}'"
     
-    cmd = ['git', 'log', '--graph', '--oneline', '--all', '-n', '10']
+    # Empty log options for now
+    log_options = ''
+
+    # Hardcoded limit
+    limit=10
+
+    # Format string for git --format so it gets interpreted correctly
+    format_str = "--format=--+ Commit:  %h%n  | Date:    %aD (%ar)%n  | Message: %s %d%n  + Author:  %aN %n"
+
+    # Perform final git command
+    cmd = [
+        'git', '-c', 'log.showSignature=false', 'log',
+        '--use-mailmap',
+        '--graph',
+        '--abbrev-commit',
+        since,
+        until,
+        '--decorate',
+        format_str,
+        '--all'
+    ]
+
     output = run_git_command(cmd)
+
+    # handle the head -n $((_limit*5)) portion
     if output:
-        print("Branch tree view (last 10 commits):")
-        print(output)
+        print('Branching tree view:\n')
+        lines = output.split('\n')
+        total_lines = limit * 5
+        limited_lines = lines[:total_lines]
+
+        for line in limited_lines:
+            print(f"{line}")
+
+        commit_count = sum(1 for line in limited_lines if line.strip().startswith('--+ Commit:'))
     else:
         print('No data available.')
 
 
-def all_branches_sorted() -> None:
+def branches_by_date() -> None:
     """
     Lists branches sorted by the latest commit date.
     """
-    
-    cmd = [
-        'git', 'for-each-ref', '--sort=-committerdate', '--format', '%(refname:short)',
-        'refs/heads/'
-    ]
+
+    # Original command:
+    # git for-each-ref --sort=committerdate refs/heads/ \
+    #     --format='[%(authordate:relative)] %(authorname) %(refname:short)' | cat -n
+    # TODO: Wouldn't git log --pretty=format:'%ad' --date=short be better here?
+    #       Then we could pipe it through sort, uniq -c, sort -nr, etc.
+    #       Possibly feed back into the parent project
+    format_str = "[%(authordate:relative)] %(authorname) %(refname:short)"
+    cmd = ['git', 'for-each-ref', '--sort=committerdate', 'refs/heads/', f'--format={format_str}']
+
     output = run_git_command(cmd)
     if output:
-        print("All branches sorted by most recent commits:")
-        print(output)
+        # Split the output into lines
+        lines = output.split('\n')
+
+        # Number the lines similar to 'cat -n'
+        numbered_lines = [f"{idx + 1}  {line}" for idx, line in enumerate(lines)]
+
+        # Output numbered lines
+        print('All branches (sorted by most recent commit):\n')
+        for line in numbered_lines:
+            print(f'\t{line}')
     else:
-        print('No branches available.')
+        print('No commits found.')
 
 
-def all_contributors() -> None:
+def contributors() -> None:
     """
     Lists all contributors alphabetically.
     """
-    
-    cmd = ['git', 'shortlog', '-sn', '--all']
+
+    # Hardcode variables
+    # TODO: Make these configurable by the user
+    earliest_commit_date = run_git_command(['git', 'log', '--reverse', '--format=%ad'])
+    if earliest_commit_date:
+        # Take the first line as the earliest commit date
+        first_commit_date = earliest_commit_date.split('\n')[0]
+        since = f"--since='{first_commit_date}'"
+    else:
+        # If no commits, set since to an empty string
+        since = ''
+
+
+    now = datetime.now(timezone.utc).astimezone()
+    until_formatted = now.strftime('%a, %d %b %Y %H:%M:%S %Z')
+    until = f"--until={until_formatted}"
+
+    pathspec = ""  # No pathspec filtering
+
+    merges = "--no-merges"
+    limit = 50
+    log_options = ""
+
+    # Original command
+    #     git -c log.showSignature=false log --use-mailmap $_merges "$_since" "$_until" \
+    #         --format='%aN' $_log_options $_pathspec | sort -u | cat -n
+    cmd = [
+        'git',
+        '-c', 'log.showSignature=false',
+        'log',
+        '--use-mailmap',
+        merges,
+        since,
+        until,
+        '--format=%aN',
+        log_options
+    ]
+
+    # Append pathspec only if it's not empty. Currently hardcoded
+    if pathspec:
+        cmd.append(pathspec)
+
+    # Remove any empty strings from the command to prevent Git misinterpretation
+    # Breaks without this
+    cmd = [arg for arg in cmd if arg]
+
+    # Execute the Git command
     output = run_git_command(cmd)
     if output:
-        print("All contributors:")
-        contributors = [line.strip() for line in output.split('\n')]
-        contributors.sort(key=lambda x: x.split('\t')[1])
-        for contributor in contributors:
-            print(contributor)
+        print('All contributors (sorted by name):\n')
+        # Split the output into individual author names
+        authors = [line.strip() for line in output.split('\n') if line.strip()]
+
+        # Remove duplicates by converting the list to a set
+        unique_authors = set(authors)
+
+        # Sort the unique authors alphabetically
+        sorted_authors = sorted(unique_authors)
+
+        # Apply the limit
+        limited_authors = sorted_authors[:limit]
+
+        # Number the authors similar to 'cat -n' and print
+        numbered_authors = [f"{idx + 1}  {author}" for idx, author in enumerate(limited_authors)]
+        for author in numbered_authors:
+            print(f'\t{author}')
     else:
         print('No contributors found.')
-
 
 def new_contributors() -> None:
     """

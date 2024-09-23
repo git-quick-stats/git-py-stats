@@ -11,11 +11,11 @@ class TestListCmds(unittest.TestCase):
 
     # Prevent printing to stdout
     @patch('git_py_stats.list_cmds.print')
-    def test_branch_tree_view(self, mock_print) -> None:
+    def test_branch_tree(self, mock_print) -> None:
         """
-        Test case for the branch_tree_view function in the list_cmds module.
+        Test case for the branch_tree function in the list_cmds module.
 
-        Checks if `branch_tree_view` executes without errors and returns `None`.
+        Checks if `branch_tree` executes without errors and returns `None`.
         The print function is mocked to prevent actual output during testing.
 
         The test verifies that the function runs without raising any exceptions and
@@ -23,7 +23,7 @@ class TestListCmds(unittest.TestCase):
         """
         
         # TODO: We can probably handle this a bit better. Basic test for now, though
-        self.assertIsNone(list_cmds.branch_tree_view())
+        self.assertIsNone(list_cmds.branch_tree())
         mock_print.assert_called()
 
 if __name__ == '__main__':

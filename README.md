@@ -51,22 +51,22 @@ exists essentially 1:1 functionality between the two projects. Stubbed means
 `git-py-stats` has the feature available, but it might not match the original
 project's version. Not Yet Implemented means it does not exist yet:
 
-| Feature                                         | Status                  | Description                                             |
-|-------------------------------------------------|-------------------------|---------------------------------------------------------|
-| **UI**                                          | Completed ✔️           | General UI when launching interactive mode              |
-| **Interactive Mode**                            | Completed ✔️           | Enables interactive sessions for user inputs.           |
-| **Non-interactive Mode**                        | Completed ✔️           | Allows usage without interactive prompts.               |
-| **Contribution Stats**                          | Completed ✔️           | Displays overall contribution statistics.               |
-| **Contribution Stats by Author**                | Completed ✔️           | Shows contribution stats by individual authors.         |
-| **Changelogs**                                  | Completed ✔️           | Lists commit logs over 10 last days of commits.         |
-| **Changelogs by Author**                        | Completed ✔️           | Filters changelogs based on the author.                 |
-| **Code Reviewers**                              | Completed ✔️           | Identifies code reviewers based on contribution.        |
-| **My Daily Stats**                              | Stubbed 🛠️             | Tracks daily statistics customized for the user.        |
-| **Output Daily Stats by Branch in CSV**         | Stubbed 🛠️             | Exports daily branch stats in CSV format.               |
-| **Save Git Log Output in JSON Format**          | Stubbed 🛠️             | Stores git logs in JSON.                                |
-| **Branch Tree View**                            | Stubbed 🛠️             | Visual representation of the branch hierarchy.          |
-| **All Branches (Sorted by Most Recent Commit)** | Stubbed 🛠️             | Lists all branches ordered by latest commit date.       |
-| **All Contributors (Sorted by Name)**           | Stubbed 🛠️             | Displays all contributors sorted alphabetically.        |
+| Feature                                         | Status                 | Description                                             |
+|-------------------------------------------------|------------------------|---------------------------------------------------------|
+| **UI**                                          | Completed ✔️            | General UI when launching interactive mode              |
+| **Interactive Mode**                            | Completed ✔️            | Enables interactive sessions for user inputs.           |
+| **Non-interactive Mode**                        | Completed ✔️            | Allows usage without interactive prompts.               |
+| **Contribution Stats**                          | Completed ✔️            | Displays overall contribution statistics.               |
+| **Contribution Stats by Author**                | Completed ✔️            | Shows contribution stats by individual authors.         |
+| **Changelogs**                                  | Completed ✔️            | Lists commit logs over 10 last days of commits.         |
+| **Changelogs by Author**                        | Completed ✔️            | Filters changelogs based on the author.                 |
+| **Code Reviewers**                              | Completed ✔️            | Identifies code reviewers based on contribution.        |
+| **My Daily Stats**                              | Completed ✔️            | Tracks daily statistics customized for the user.        |
+| **Output Daily Stats by Branch in CSV**         | Completed ✔️            | Exports daily branch stats in CSV format.               |
+| **Save Git Log Output in JSON Format**          | Completed ✔️            | Stores git logs in JSON.                                |
+| **Branch Tree View**                            | Completed ✔️            | Visual representation of the branch hierarchy.          |
+| **All Branches (Sorted by Most Recent Commit)** | Completed ✔️            | Lists all branches ordered by latest commit date.       |
+| **All Contributors (Sorted by Name)**           | Completed ✔️            | Displays all contributors sorted alphabetically.        |
 | **New Contributors (Sorted by Email)**          | Stubbed 🛠️             | Lists new contributors sorted by their email addresses. |
 | **Git Commits per Author**                      | Stubbed 🛠️             | Counts commits made by each author.                     |
 | **Git Commits per Date**                        | Stubbed 🛠️             | Counts commits based on the date.                       |
@@ -88,6 +88,22 @@ project's version. Not Yet Implemented means it does not exist yet:
 | **Linux Package Install**                       | Not Yet Implemented ❌ | Allows Linux users to install via a package manager.    |
 | **macOS Package install**                       | Not Yet Implemented ❌ | Allows macOS users to install via brew.                 |
 | **Docker Development Image**                    | Not Yet Implemented ❌ | Provides a Docker development image for CI/CD.          |
+
+## Changes from Original
+
+While this project aims to be feature-complete and 1:1 with the `git-quick-stats`,
+there may be instances where this version differs from the base project by design.
+The following is a list of differences that this project will maintain compared to
+the parent project:
+
+* Author and branch names can be passed via cmdline without interaction by
+  the user. This means you can now do `git-py-stats -L "John Doe"` instead of
+  being prompted to enter the name after executing the non-interactive cmd.
+* CSV output is now saved to a file instead of printing out to the terminal.
+  This file will be saved to wherever the process was executed. The name will
+  be `git_daily_stats.csv`
+* JSON output is saved to a file wherever the process was executed instead of
+  one that is provided by the user. The name will be `git_log.json`
 
 ## Requirements
 

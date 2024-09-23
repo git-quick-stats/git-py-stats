@@ -7,6 +7,7 @@ import csv
 from datetime import datetime, timedelta
 import json
 import os
+import re
 from typing import Optional, Dict, Any, List
 from git_py_stats.git_operations import run_git_command
 
@@ -230,18 +231,86 @@ def my_daily_status() -> None:
     """
     Displays the user's commits from the last day.
     """
-    
-    try:
-        user = os.getlogin()
-    except OSError:
-        user = os.environ.get('USER', 'unknown')
-    cmd = ['git', 'log', '--author', user, '--since=1.day', '--oneline']
-    output = run_git_command(cmd)
-    if output:
-        print("My daily status:")
-        print(output)
+
+    print('My daily status:')
+
+    # Equivalent Bash Command:
+    # git diff --shortstat '@{0 day ago}' | sort -nr | tr ',' '\n' \
+    #     | LC_ALL=C awk '{ args[NR] = $0; } END { for (i = 1; i <= NR; ++i) \
+    #                     { printf "\t%s\n", args[i] } }'
+
+    # Mimic 'git diff --shortstat "@{0 day ago}"'
+    diff_cmd = ['git', 'diff', '--shortstat', '@{0 day ago}']
+    diff_output = run_git_command(diff_cmd)
+
+    # Process diff output:
+    if diff_output:
+        # Replace commas with newlines
+        diff_lines = [line.strip() for line in diff_output.split(',')]
+
+        # Print each line prefixed with a tab
+        for line in diff_lines:
+            print(f"\t{line}")
     else:
-        print('No commits in the last day.')
+        # If no diff stats are available, indicate no changes
+        print("\tNo changes in the last day.")
+
+    # Count Commits
+    # Equivalent Bash Command:
+    # git -c log.showSignature=false log --use-mailmap \
+    #     --author="$(git config user.name)" $_merges \
+    #     --since=$(date "+%Y-%m-%dT00:00:00") \
+    #     --until=$(date "+%Y-%m-%dT23:59:59") --reverse $_log_options \
+    #     | grep -cE "commit [a-f0-9]{40}"
+
+    # Get the user's name
+    # Lets also handle the case if the user's name is not set correctly
+    git_user = run_git_command(['git', 'config', 'user.name'])
+    if not git_user:
+        git_user = 'unknown'
+
+    # Define global variables with default values
+    # TODO: Refactor these to be configurable
+    merges_option = '--no-merges'
+    log_options = ''
+
+    # Get today's date in the format 'YYYY-MM-DD' to match the original cmd
+    today = datetime.now().strftime('%Y-%m-%d')
+    since = f"{today}T00:00:00"
+    until = f"{today}T23:59:59"
+
+    # Build the final git log command
+    log_cmd = [
+        'git', '-c', 'log.showSignature=false', 'log',
+        '--use-mailmap',
+        '--author', git_user,
+        merges_option,
+        '--since', since,
+        '--until', until,
+        '--reverse'
+    ]
+
+    # Added to handle log options in the future
+    if log_options:
+        log_cmd.extend(log_options.split())
+
+    # Execute the git log command
+    log_output = run_git_command(log_cmd)
+
+    # Bash version uses grep to count lines matching the hash pattern
+    # "commit [a-f0-9]{40}"
+    # We can use re to mimic this in Python
+    # TODO: Revisit this. We might be able to do --pretty=format:%H to avoid
+    #       having to use a regex to handle this portion. This could be
+    #       an improvement to feed back to the original project
+    if log_output:
+        commit_pattern = re.compile(r'^commit [a-f0-9]{40}$', re.MULTILINE)
+        commit_count = len(commit_pattern.findall(log_output))
+    else:
+        commit_count = 0
+
+    # Print the commit count, prefixed with a tab
+    print(f"\t{commit_count} commits")
 
 
 def output_daily_stats_csv() -> None:
