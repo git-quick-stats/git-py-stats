@@ -84,7 +84,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
     )
     parser.add_argument(
         '-n', '--new-contributors',
-        action='store_true',
+        metavar='DATE',
         help='List everyone who made their first contribution since a specified date'
     )
     parser.add_argument(

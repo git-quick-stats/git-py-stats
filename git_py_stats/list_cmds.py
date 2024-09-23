@@ -172,23 +172,110 @@ def contributors() -> None:
     else:
         print('No contributors found.')
 
-def new_contributors() -> None:
+def new_contributors(new_date: str) -> None:
     """
-    Lists contributors sorted by email.
+    Lists all new contributors to a repo since the specified date.
+
+    Args:
+        new_date (str): Cutoff date for being considered "new" in 'YYYY-MM-DD' format.
+
+    Returns:
+        None
     """
-    
-    cmd = ['git', 'log', '--format=%aN|%aE']
+
+    # Attempt to handle date in YYYY-MM-DD format
+    try:
+        new_date_dt = datetime.strptime(new_date, '%Y-%m-%d')
+        new_date_ts = int(new_date_dt.timestamp())
+    except ValueError:
+        print("Invalid date format. Please use YYYY-MM-DD.")
+        return
+
+    # User adjustable vars
+    # TODO: Fix these later on
+    merges = "--no-merges"
+    since = ""  # Include the world for now
+    until = ""
+    log_options = ""
+    pathspec = ""
+
+    # Original command:
+    # git -c log.showSignature=false log --use-mailmap $_merges \
+    #     "$_since" "$_until" --format='%aE' $_log_options \
+    #     $_pathspec | sort -u
+    cmd = [
+        'git',
+        '-c', 'log.showSignature=false',
+        'log',
+        '--use-mailmap',
+        merges,
+        since,
+        until,
+        '--format=%aE|%at',
+        log_options,
+        pathspec
+    ]
+
+    # Remove any empty strings from the command to prevent Git misinterpretation
+    # Needed when we start messing with datetime stuff
+    cmd = [arg for arg in cmd if arg]
+
     output = run_git_command(cmd)
     if output:
-        contributors = set(output.split('\n'))
-        new_contributors_list = sorted(contributors, key=lambda x: x.split('|')[1])
-        print("New contributors:")
-        for contributor in new_contributors_list:
+        # Dictionary to store the earliest commit timestamp for each contributor
+        contributors_dict = {}
+
+        # Process each line of the Git output
+        for line in output.split('\n'):
             try:
-                name, email = contributor.split('|')
-                print(f"{name} <{email}>")
+                email, timestamp = line.split('|')
+                timestamp = int(timestamp)
+                # If the contributor is not in the dictionary or the current timestamp is earlier
+                if email not in contributors_dict or timestamp < contributors_dict[email]:
+                    contributors_dict[email] = timestamp
             except ValueError:
-                continue  # Skip lines that don't match the expected format
+                continue  # Skip lines that don't match format
+
+        # List to hold new contributors
+        new_contributors_list = []
+
+        # Iterate over contributors to find those who are new since 'new_date'
+        for email, first_commit_ts in contributors_dict.items():
+            if first_commit_ts >= new_date_ts:
+                # Retrieve the contributor's name
+                # Original command:
+                # git -c log.showSignature=false log --author="$c" \
+                #     --reverse --use-mailmap $_merges "$_since" "$_until" \
+                #     --format='%at' $_log_options $_pathspec | head -n 1
+                name_cmd = [
+                    'git',
+                    '-c', 'log.showSignature=false',
+                    'log',
+                    '--use-mailmap',
+                    '--format=%aN',
+                    '--author=' + email,
+                    '-n', '1'
+                ]
+
+                # Grab name + email if we can. Otherwise, just grab email
+                name = run_git_command(name_cmd)
+                if name:
+                    new_contributors_list.append((name, email))
+                else:
+                    new_contributors_list.append(("", email))
+
+        # Sort the list alphabetically by name to match the original
+        # and print all of this out
+        if new_contributors_list:
+            print(f"New contributors since {new_date}:\n")
+            sorted_new_contributors = sorted(new_contributors_list, key=lambda x: (x[0], x[1]))
+            for idx, (name, email) in enumerate(sorted_new_contributors, 1):
+                if name:
+                    print(f"{name} <{email}>")
+                else:
+                    print(f"<{email}>")
+        else:
+            print("No new contributors found since the specified date.")
     else:
         print('No contributors found.')
 

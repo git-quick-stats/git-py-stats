@@ -18,7 +18,7 @@ def handle_interactive_mode() -> None:
         '8': list_cmds.branch_tree,
         '9': list_cmds.branches_by_date,
         '10': list_cmds.contributors,
-        '11': list_cmds.new_contributors,
+        '11': lambda: list_cmds.new_contributors(input("Enter cutoff date (YYYY-MM-DD): ")),
         '12': list_cmds.git_commits_per_author,
         '13': list_cmds.git_commits_per_date,
         '14': list_cmds.git_commits_per_month,

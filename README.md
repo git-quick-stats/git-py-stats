@@ -67,7 +67,7 @@ project's version. Not Yet Implemented means it does not exist yet:
 | **Branch Tree View**                            | Completed ✔️            | Visual representation of the branch hierarchy.          |
 | **All Branches (Sorted by Most Recent Commit)** | Completed ✔️            | Lists all branches ordered by latest commit date.       |
 | **All Contributors (Sorted by Name)**           | Completed ✔️            | Displays all contributors sorted alphabetically.        |
-| **New Contributors (Sorted by Email)**          | Stubbed 🛠️             | Lists new contributors sorted by their email addresses. |
+| **New Contributors (Sorted by Email)**          | Completed ✔️            | Lists new contributors sorted by their email addresses. |
 | **Git Commits per Author**                      | Stubbed 🛠️             | Counts commits made by each author.                     |
 | **Git Commits per Date**                        | Stubbed 🛠️             | Counts commits based on the date.                       |
 | **Git Commits per Month**                       | Stubbed 🛠️             | Counts commits based on the monthly.                    |
@@ -96,14 +96,16 @@ there may be instances where this version differs from the base project by desig
 The following is a list of differences that this project will maintain compared to
 the parent project:
 
-* Author and branch names can be passed via cmdline without interaction by
-  the user. This means you can now do `git-py-stats -L "John Doe"` instead of
-  being prompted to enter the name after executing the non-interactive cmd.
+* Author, dates, and branch names can be passed via cmdline without interaction
+  by the user. This means you can now do `git-py-stats -L "John Doe"` instead
+  of being prompted to enter the name after executing the non-interactive cmd.
 * CSV output is now saved to a file instead of printing out to the terminal.
   This file will be saved to wherever the process was executed. The name will
   be `git_daily_stats.csv`
 * JSON output is saved to a file wherever the process was executed instead of
   one that is provided by the user. The name will be `git_log.json`
+* The New Contributors function shows the user's name next to the email in case
+  no known mailmap has been implemented for that user.
 
 ## Requirements
 

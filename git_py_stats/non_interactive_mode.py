@@ -23,7 +23,7 @@ def handle_non_interactive_mode(args) -> None:
         'branch_tree': list_cmds.branch_tree,
         'branches_by_date': list_cmds.branches_by_date,
         'contributors': list_cmds.contributors,
-        'new_contributors': list_cmds.new_contributors,
+        'new_contributors': lambda: list_cmds.new_contributors(args.new_contributors),
         'commits_per_author': list_cmds.git_commits_per_author,
         'commits_per_day': list_cmds.git_commits_per_date,
         'commits_by_year': list_cmds.git_commits_per_year,
