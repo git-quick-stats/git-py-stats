@@ -69,7 +69,7 @@ project's version. Not Yet Implemented means it does not exist yet:
 | **All Contributors (Sorted by Name)**           | Completed ✔️            | Displays all contributors sorted alphabetically.        |
 | **New Contributors (Sorted by Email)**          | Completed ✔️            | Lists new contributors sorted by their email addresses. |
 | **Git Commits per Author**                      | Completed ✔️            | Counts commits made by each author.                     |
-| **Git Commits per Date**                        | Stubbed 🛠️             | Counts commits based on the date.                       |
+| **Git Commits per Date**                        | Completed ✔️            | Counts commits based on the date.                       |
 | **Git Commits per Month**                       | Stubbed 🛠️             | Counts commits based on the monthly.                    |
 | **Git Commits per Year**                        | Stubbed 🛠️             | Counts commits based on the year.                       |
 | **Git Commits per Weekday**                     | Stubbed 🛠️             | Counts commits based on the weekday.                    |

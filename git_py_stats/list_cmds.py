@@ -390,14 +390,48 @@ def git_commits_per_date() -> None:
     Displays commits grouped by date.
     """
     
-    cmd = ['git', 'log', '--date=short', '--pretty=format:%cd']
+    # Customizable vars in the future
+    mailmap = "--use-mailmap"
+    merges = "--no-merges"
+    #log_options
+    #pathspec
+    
+    # Since can be hardcoded for now. It'll be based on the earliest commit
+    # in the repo
+    earliest_commit_date = run_git_command(['git', 'log', '--reverse', '--format=%ad'])
+    if earliest_commit_date:
+        # Take the first line as the earliest commit date
+        first_commit_date = earliest_commit_date.split('\n')[0]
+        since = f"--since='{first_commit_date}'"
+    else:
+        # If no commits, set since to an empty string
+        since = ''
+
+    # Until will be current system's date and time
+    now = datetime.now(timezone.utc).astimezone()
+    until_formatted = now.strftime('%a, %d %b %Y %H:%M:%S %Z')
+    until = f"--until='{until_formatted}'"
+
+    # Original command
+    #  git -c log.showSignature=false log --use-mailmap $_merges "$_since" "$_until" \
+    #      --date=short --format='%ad' $_log_options $_pathspec | sort | uniq -c
+    cmd = ['git', '-c', 'log.showSignature=false', 'log', mailmap, merges,
+           since, until, '--date=short', '--pretty=format:%ad']
+    
+    # Print out the commit count and date in YYYY-MM-DD format
     output = run_git_command(cmd)
     if output:
         dates = output.split('\n')
         counter = collections.Counter(dates)
-        print("Git commits per date:")
+        print("Git commits per date:\n")
+
+        # Need to figure out the max count for width alignment purposes
+        max_count = max(counter.values())
+        count_width = len(str(max_count))
+
+        # Can now display this to the terminal
         for date, count in sorted(counter.items()):
-            print(f"{date}: {count} commits")
+            print(f"\t{count:>{count_width}} {date}")
     else:
         print('No commits found.')
 
@@ -414,7 +448,7 @@ def git_commits_per_month() -> None:
         counter = collections.Counter(months)
         print("Git commits per month:")
         for month, count in sorted(counter.items()):
-            print(f"{month}: {count} commits")
+            print(f"{month} {count} commits")
     else:
         print('No commits found.')
 
