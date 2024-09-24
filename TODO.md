@@ -6,7 +6,7 @@
   - Test suite should run when someone submits a PR in GitHub
 * Add configuration similar to how `git-quick-stats` does it
   - Maybe play around with a config file as an option that the user can save
-* Add screenshots to README.md
+  - Probably choose INI since Python can handle this via configparser
 * Structure could probably use a slight adjustment
   - Right now, it's fairly small so we can deal with all of the source files
     being co-located. As it grows, it might be better to create a logical

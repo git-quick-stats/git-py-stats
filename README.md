@@ -70,14 +70,14 @@ project's version. Not Yet Implemented means it does not exist yet:
 | **New Contributors (Sorted by Email)**          | Completed ✔️            | Lists new contributors sorted by their email addresses. |
 | **Git Commits per Author**                      | Completed ✔️            | Counts commits made by each author.                     |
 | **Git Commits per Date**                        | Completed ✔️            | Counts commits based on the date.                       |
-| **Git Commits per Month**                       | Stubbed 🛠️             | Counts commits based on the monthly.                    |
-| **Git Commits per Year**                        | Stubbed 🛠️             | Counts commits based on the year.                       |
-| **Git Commits per Weekday**                     | Stubbed 🛠️             | Counts commits based on the weekday.                    |
-| **Git Commits per Weekday by Author**           | Stubbed 🛠️             | Shows weekday commit counts by given author.            |
-| **Git Commits per Hour**                        | Stubbed 🛠️             | Counts commits based on the hour.                       |
-| **Git Commits per Hour by Author**              | Stubbed 🛠️             | Shows hourly commit count hour by given author.         |
-| **Git Commits per Timezone**                    | Stubbed 🛠️             | Counts commits based on timezones.                      |
-| **Git Commits per Timezone by Author**          | Stubbed 🛠️             | Shows timezone-based commit counts by given author.     |
+| **Git Commits per Month**                       | Completed ✔️            | Counts commits based on the monthly.                    |
+| **Git Commits per Year**                        | Completed ✔️            | Counts commits based on the year.                       |
+| **Git Commits per Weekday**                     | Completed ✔️            | Counts commits based on the weekday.                    |
+| **Git Commits per Weekday by Author**           | Completed ✔️            | Shows weekday commit counts by given author.            |
+| **Git Commits per Hour**                        | Completed ✔️            | Counts commits based on the hour.                       |
+| **Git Commits per Hour by Author**              | Completed ✔️            | Shows hourly commit count hour by given author.         |
+| **Git Commits per Timezone**                    | Completed ✔️            | Counts commits based on timezones.                      |
+| **Git Commits per Timezone by Author**          | Completed ✔️            | Shows timezone-based commit counts by given author.     |
 | **Since Variable Adjustable by User**           | Not Yet Implemented ❌ | Allows users to set the starting point for commit logs. |
 | **Until Variable Adjustable by User**           | Not Yet Implemented ❌ | Enables users to define the end point for commit logs.  |
 | **Pathspec Variable Adjustable by User**        | Not Yet Implemented ❌ | Filters commits based on specified path patterns.       |

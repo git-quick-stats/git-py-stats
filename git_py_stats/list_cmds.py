@@ -441,14 +441,72 @@ def git_commits_per_month() -> None:
     Displays commits grouped by month.
     """
     
-    cmd = ['git', 'log', '--date=format:%Y-%m', '--pretty=format:%cd']
+    # Define months
+    months_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+    # Initialize counts
+    commit_counts = {month: 0 for month in months_order}
+
+    # NOTE: One of the issues is that the scaling factor can be weird
+    #       Let's pass this for now, but we want to eventually
+    #       make this a user-adjustable field that gets passed
+    #       to the function
+    max_bar_length = 20
+    
+    # Original command:
+    #  git -c log.showSignature=false shortlog -n $_merges --format='%ad %s' \
+    #      "$_since" "$_until" $_log_options |
+    #      grep -cE " \w\w\w $i [0-9]{1,2} "
+    # NOTE: We can grab the month via %b
+    cmd = [
+        'git',
+        '-c', 'log.showSignature=false',
+        'log',
+        '--use-mailmap',
+        '--no-merges',
+        '--date=format:%b',
+        '--pretty=format:%cd'
+    ]
+
     output = run_git_command(cmd)
+
     if output:
+        print('Git commits by month:\n')
+        # Split the output into individual month abbreviations
         months = output.split('\n')
-        counter = collections.Counter(months)
-        print("Git commits per month:")
-        for month, count in sorted(counter.items()):
-            print(f"{month} {count} commits")
+        for month in months:
+            if month in commit_counts:
+                commit_counts[month] += 1
+
+        # Calculate total commits
+        total_commits = sum(commit_counts.values())
+
+        # Determine the maximum count to set the scaling factor
+        max_count = max(commit_counts.values()) if commit_counts else 0
+
+        # Need this in case we ever divide by zero
+        scaling_factor = (max_bar_length / max_count) if max_count > 0 else 0
+
+        # Print the header row
+        header_month = "Month"
+        header_sum = "Sum"
+        print(f"\t{header_month:<6}\t{header_sum:<4}")
+
+        # Iterate through the sorted months and print counts
+        for month in months_order:
+            count = commit_counts[month]
+            if count > 0:
+                # Calculate the number of blocks for the bar
+                num_blocks = int(count * scaling_factor)
+                bar = "|" + "█" * num_blocks
+            else:
+                # Different from the normal one, but lets
+                # Represent months with no commits with a dash
+                bar = "-"
+
+            # Print with alignment
+            print(f"\t{month:<6}\t{count:<4}\t{bar}")
     else:
         print('No commits found.')
 
@@ -457,15 +515,74 @@ def git_commits_per_year() -> None:
     """
     Displays commits grouped by year.
     """
-    
-    cmd = ['git', 'log', '--date=format:%Y', '--pretty=format:%cd']
+    # Bar length
+    # TODO: Make this user adjustable
+
+    max_bar_length = 30
+    # Original command:
+    #  git -c log.showSignature=false shortlog -n $_merges --format='%ad %s' \
+    #      "$__since" "$__until" $_log_options | grep -cE \
+    #      " \w\w\w [0-9]{1,2} [0-9][0-9]:[0-9][0-9]:[0-9][0-9] $year "
+    #
+    # Note, we can use %Y to grab the year
+    cmd = [
+        'git',
+        '-c', 'log.showSignature=false',
+        'log',
+        '--use-mailmap',
+        '--no-merges',
+        '--date=format:%Y',
+        '--pretty=format:%cd'
+    ]
+
     output = run_git_command(cmd)
     if output:
+        print('Git commits by year:\n')
+        # Split the output into individual years
         years = output.split('\n')
         counter = collections.Counter(years)
-        print("Git commits per year:")
-        for year, count in sorted(counter.items()):
-            print(f"{year}: {count} commits")
+
+        # Determine the range of years
+        # TODO: This will need to be adjustable later
+        all_years = sorted(counter.keys())
+        start_year = int(all_years[0])
+        end_year = int(all_years[-1])
+
+        # Initialize commit counts for all years in range
+        commit_counts = {year: 0 for year in range(start_year, end_year + 1)}
+        for year, count in counter.items():
+            commit_counts[int(year)] = count
+
+        # Calculate total commits
+        total_commits = sum(commit_counts.values())
+        if total_commits == 0:
+            print('No commits found.')
+            return
+
+        # Determine the maximum count to set the scaling factor
+        max_count = max(commit_counts.values())
+        scaling_factor = (max_bar_length / max_count) if max_count > 0 else 0
+
+        # Determine the width for alignment
+        year_width = len(str(end_year))
+        count_width = len(str(max_count))
+
+        # Print the header row
+        header_year = "Year"
+        header_sum = "Sum"
+        print(f"\t{header_year:<6}\t{header_sum:<4}")
+
+        # Iterate through the sorted years and print
+        for year in range(start_year, end_year + 1):
+            count = commit_counts.get(year, 0)
+            if count > 0:
+                num_blocks = int(count * scaling_factor)
+                num_blocks = min(num_blocks, max_bar_length)
+                bar = "|" + "█" * num_blocks
+            else:
+                # Represent years with no commits with a dash
+                bar = "-"
+            print(f"\t{year:<6}\t{count:<4}\t{bar}")
     else:
         print('No commits found.')
 
@@ -479,33 +596,73 @@ def git_commits_per_weekday(author: Optional[str] = None) -> None:
         author (Optional[str]): The author you want to show the commits grouped by.
                                 If None, show for all authors.
     """
+    # Temp in var for now
+    # TODO: Make this user adjustable
+    max_bar_length = 30
     
-    # Build git cmd based on whether or not we have an author provided
     if author:
-        cmd = ['git', 'log', '--author', author, '--pretty=format:%cd', '--date=raw']
+        print(f"Git commits by weekday for author '{author}':")
     else:
-        cmd = ['git', 'log', '--pretty=format:%cd', '--date=raw']
+        print("Git commits by weekday:")
 
-    # Run the git command and capture the output
+    # Define the order of weekdays
+    weekdays_order = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+    # Initialize commit counts for each weekday
+    commit_counts = {day: 0 for day in weekdays_order}
+
+    # Original command:
+    # git -c log.showSignature=false shortlog -n $_merges --format='%ad %s' \
+    #     "${_author}" "$_since" "$_until" $_log_options |
+    #     grep -cE "^ * $i \w\w\w [0-9]{1,2} " || continue
+    if author:
+        cmd = ['git', 'log', '--author', author, '--pretty=format:%cd', '--date=format:%a']
+    else:
+        cmd = ['git', 'log', '--pretty=format:%cd', '--date=format:%a']
+
     output = run_git_command(cmd)
-
     if output:
-        try:
-            timestamps = [int(line.split()[0]) for line in output.split('\n')]
-            weekdays = [datetime.datetime.fromtimestamp(ts).strftime('%A') for ts in timestamps]
-            counter = collections.Counter(weekdays)
+        # Split the output into individual weekday abbreviations
+        weekdays = output.split('\n')
+        for day in weekdays:
+            if day in commit_counts:
+                commit_counts[day] += 1
 
-            # Display commits per weekday
-            if author:
-                print(f"Git commits per weekday for author '{author}':")
+        # Calculate total commits
+        total_commits = sum(commit_counts.values())
+        if total_commits == 0:
+            print('No commits found.')
+            return
+
+        # Determine the maximum count to set the scaling factor
+        max_count = max(commit_counts.values())
+        scaling_factor = (max_bar_length / max_count) if max_count > 0 else 0
+
+        # Determine the width for alignment based on max_count
+        count_width = len(str(max_count))
+
+        # Print the header row
+        header_day = "Day"
+        header_sum = "Sum"
+        print(f"\t{header_day:<6}\t{header_sum:<4}")
+
+        # Iterate through the weekdays in order and print counts with proper alignment
+        for day in weekdays_order:
+            count = commit_counts[day]
+            if count > 0:
+                # Calculate the number of blocks for the bar and make sure
+                # there's at least one block for non-zero vals
+                num_blocks = int(count * scaling_factor)
+                if num_blocks == 0 and count > 0:
+                    num_blocks = 1
+                # Construct the bar with a leading "|"
+                bar = "|" + "█" * num_blocks
             else:
-                print("Git commits per weekday:")
+                # Represent days with no commits with a dash
+                bar = "-"
 
-            for day, count in counter.most_common():
-                print(f"  {day}: {count} commits")
-
-        except (ValueError, IndexError):
-            print("Failed to parse timestamps.")
+            # Print with alignment
+            print(f"\t{day:<6}\t{count:<4}\t{bar}")
     else:
         if author:
             print(f'No commits found for author: {author}')
@@ -522,33 +679,73 @@ def git_commits_per_hour(author: Optional[str] = None) -> None:
         author (Optional[str]): The author to show the commits grouped by. 
                                 If None, show for all authors.
     """
+    # Temp in a var for now to adjust bar length
+    # TODO: Make this user adjustable
+    max_bar_length = 20
     
-    # Build git cmd based on whether or not we have an author provided
     if author:
-        cmd = ['git', 'log', '--author', author, '--pretty=format:%cd', '--date=raw']
+        print(f"Git commits by hour for author '{author}':")
     else:
-        cmd = ['git', 'log', '--pretty=format:%cd', '--date=raw']
+        print("Git commits by hour:")
 
-    # Run the git command and capture the output
+    # Define the order of hours (00 to 23)
+    hours_order = [f"{hour:02d}" for hour in range(24)]
+
+    # Initialize commit counts for each hour
+    commit_counts = {hour: 0 for hour in hours_order}
+
+    # Original git command:
+    #  git -c log.showSignature=false shortlog -n $_merges --format='%ad %s' \
+    #      "${_author}" "$_since" "$_until" $_log_options |
+    #      grep -cE '[0-9] '$i':[0-9]' || continue
+    if author:
+        cmd = ['git', 'log', '--author', author, '--pretty=format:%cd', '--date=format:%H']
+    else:
+        cmd = ['git', 'log', '--pretty=format:%cd', '--date=format:%H']
+
     output = run_git_command(cmd)
-
     if output:
-        try:
-            timestamps = [int(line.split()[0]) for line in output.split('\n')]
-            hours = [datetime.datetime.fromtimestamp(ts).hour for ts in timestamps]
-            counter = collections.Counter(hours)
+        # Split the output into individual hour abbreviations
+        hours = output.split('\n')
+        for hour in hours:
+            if hour in commit_counts:
+                commit_counts[hour] += 1
 
-            # Display commits per hour
-            if author:
-                print(f"Git commits per hour for author '{author}':")
+        # Calculate total commits
+        total_commits = sum(commit_counts.values())
+        if total_commits == 0:
+            print('No commits found.')
+            return
+
+        # Determine the maximum count to set scaling
+        max_count = max(commit_counts.values())
+        scaling_factor = (max_bar_length / max_count) if max_count > 0 else 0
+
+        # Determine the width for alignment based on max_count
+        count_width = len(str(max_count))
+
+        # Print the header row
+        header_hour = "Hour"
+        header_sum = "Sum"
+        print(f"\t{header_hour:<6}\t{header_sum:<4}")
+
+        # Iterate through the hours in order and print counts with proper alignment
+        for hour in hours_order:
+            count = commit_counts[hour]
+            if count > 0:
+                # Calculate the number of blocks for the bar and make sure
+                # there's at least one block for non-zero vals
+                num_blocks = int(count * scaling_factor)
+                if num_blocks == 0 and count > 0:
+                    num_blocks = 1
+                # Construct the bar with a leading "|"
+                bar = "|" + "█" * num_blocks
             else:
-                print("Git commits per hour:")
+                # Represent hours with no commits with a dash
+                bar = "-"
 
-            for hour, count in sorted(counter.items()):
-                print(f"  {hour:02d}:00 - {count} commits")
-
-        except (ValueError, IndexError):
-            print("Failed to parse timestamps.")
+            # Print with alignment
+            print(f"\t{hour:<6}\t{count:<4}\t{bar}")
     else:
         if author:
             print(f'No commits found for author: {author}')
@@ -565,44 +762,63 @@ def git_commits_per_timezone(author: Optional[str] = None) -> None:
         author (Optional[str]): The author to show the commits grouped by.
                                 If None, show for all authors.
     """
-    
-    # Build git cmd based on whether or not we have an author provided
+    # Original command:
+    #  git -c log.showSignature=false log $_merges --format='%ad %s' \
+    #      "${_author}" "$_since" "$_until" --date=iso $_log_options $_pathspec \
+    #      | cut -d " " -f 3 | grep -v -e '^[[:space:]]*$' | sort -n | uniq -c
     if author:
-        cmd = ['git', 'log', '--author', author, '--pretty=format:%cd', '--date=raw']
+        print(f"Git commits by timezone for author '{author}':\n")
     else:
-        cmd = ['git', 'log', '--pretty=format:%cd', '--date=raw']
+        print("Git commits by timezone:\n")
 
-    # Run the git command and capture the output
+    # Initialize commit counts in a collection for easy storage and access
+    commit_counts = collections.Counter()
+
+    # Build git command based on whether an author is provided
+    if author:
+        cmd = ['git', 'log', '--author', author, '--pretty=format:%cd', '--date=iso']
+    else:
+        cmd = ['git', 'log', '--pretty=format:%cd', '--date=iso']
+
     output = run_git_command(cmd)
-
     if output:
-        try:
-            timezones = []
-            for line in output.split('\n'):
-                parts = line.split()
-                if len(parts) == 2:  # Check if we have the format: "timestamp timezone"
-                    _, timezone = parts
-                    # Check if the second part is a valid timezone offset
-                    if timezone.startswith(('+', '-')):
-                        timezones.append(timezone)
+        # Extract timezone offsets from each commit
+        for line in output.split('\n'):
+            parts = line.strip().split()
+            if len(parts) >= 3:
+                # ISO format: YYYY-MM-DD HH:MM:SS +/-TZ
+                timezone = parts[2]
+                # Validate timezone format (e.g., +0200, -0500)
+                if (timezone.startswith(('+', '-')) and
+                    len(timezone) == 5 and
+                    timezone[1:].isdigit()):
+                    commit_counts[timezone] += 1
 
-            if timezones:
-                counter = collections.Counter(timezones)
-                if author:
-                    print(f"Git commits per timezone for author '{author}':")
-                else:
-                    print("Git commits per timezone:")
-                
-                for tz, count in counter.most_common():
-                    print(f"  {tz}: {count} commits")
+        if not commit_counts:
+            if author:
+                print(f"No valid timezones found for author: {author}")
             else:
-                if author:
-                    print(f"No valid timezones found for author: {author}")
-                else:
-                    print("No valid timezones found in commits.")
-                    
-        except IndexError:
-            print("Failed to parse timezones.")
+                print("No valid timezones found in commits.")
+            return
+
+        # Calculate total commits
+        total_commits = sum(commit_counts.values())
+        if total_commits == 0:
+            print('No commits found.')
+            return
+
+        # Print the header row
+        header_commits = "Commits"
+        header_timezone = "TimeZone"
+        print(f"{header_commits:<7}\t{header_timezone:<8}")
+
+        # Sort timezones by count descending and then by timezone
+        sorted_timezones = sorted(commit_counts.items(), key=lambda x: (-x[1], x[0]))
+
+        # Iterate through the sorted timezones and print counts
+        for timezone, count in sorted_timezones:
+            # TODO: Alignment slightly off of original
+            print(f"{count:<7}\t{timezone:<8}")
     else:
         if author:
             print(f'No commits found for author: {author}')
