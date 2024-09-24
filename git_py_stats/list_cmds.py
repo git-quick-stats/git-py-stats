@@ -3,6 +3,7 @@ Functions related to the 'List' section.
 """
 
 import collections
+import re
 from datetime import datetime, timezone
 from typing import Dict, Optional
 
@@ -285,13 +286,103 @@ def git_commits_per_author() -> None:
     Shows the number of commits per author.
     """
     
-    cmd = ['git', 'shortlog', '-s', '-n']
+    # Original authors command:
+    # git -c log.showSignature=false log --use-mailmap \
+    #     $_merges "$_since" "$_until" $_log_options \
+    #     | grep -i Author: | cut -c9-
+
+    # Original co-authors command:
+    # git -c log.showSignature=false log --author="$c" \
+    #     --reverse --use-mailmap $_merges "$_since" "$_until" \
+    #     --format='%at' $_log_options $_pathspec | head -n 1
+    cmd = [
+        'git',
+        '-c', 'log.showSignature=false',
+        'log',
+        '--use-mailmap',
+        '--no-merges',
+        '--pretty=format:Author:%aN <%aE>%n%b'
+    ]
+
     output = run_git_command(cmd)
-    if output:
-        print("Git commits per author:")
-        print(output)
-    else:
+    if not output:
         print('No commits found.')
+        return
+
+    # Initialize commit count dictionary
+    commit_counts = {}
+
+    # Total commits (including co-authored commits)
+    total_commits = 0
+
+    # Regular expressions for parsing the author(s)
+    author_regex = re.compile(r'^Author:\s*(.+)$', re.IGNORECASE)
+    coauthor_regex = re.compile(r'^Co-Authored-by:\s*(.+)$', re.IGNORECASE)
+
+    # Process each line of the git output
+    for line in output.split('\n'):
+        author_match = author_regex.match(line)
+        coauthor_match = coauthor_regex.match(line)
+
+        # Handle author
+        if author_match:
+            author_info = author_match.group(1).strip()
+            author_name = extract_name(author_info)
+            if author_name:
+                commit_counts[author_name] = commit_counts.get(author_name, 0) + 1
+                total_commits += 1
+
+        # Handle co-author
+        elif coauthor_match:
+            coauthor_info = coauthor_match.group(1).strip()
+            coauthor_name = extract_name(coauthor_info)
+            if coauthor_name:
+                commit_counts[coauthor_name] = commit_counts.get(coauthor_name, 0) + 1
+                total_commits += 1
+
+    # Handle case if nothing is found
+    if total_commits == 0:
+        print("No commits found.")
+        return
+
+    # Prepare a list of contributors with counts and percentages
+    contributors_list = []
+    for author, count in commit_counts.items():
+        percentage = (count / total_commits) * 100
+        contributors_list.append((count, author, percentage))
+
+    # Sort the list by commit count in descending order
+    contributors_list.sort(key=lambda x: x[0], reverse=True)
+
+    # Fancy stuff for making the commit count alignment kosher
+    max_count = contributors_list[0][0]
+    count_width = len(str(max_count)) + 1  # Extra space for alignment
+
+    # Print all the fun stuff. Finally...
+    print('Git commits per author:\n')
+    for count, author, percentage in contributors_list:
+        print(f"\t{count:<{count_width}} {author:<30} {percentage:5.1f}%")
+
+
+def extract_name(author_info: str) -> Optional[str]:
+    """
+    Extracts the author's name from the author information string.
+
+    Args:
+        author_info (str): The author information string (e.g., "Name <email@example.com>").
+
+    Returns:
+        Optional[str]: The extracted author name, or None if extraction fails.
+    """
+
+    # Use regex to extract the name before the email
+    # Mostly a helper function for commits
+    # NOTE: Should we move this into a separate file with other helper funcs?
+    match = re.match(r'^([^<]+)', author_info)
+    if match:
+        return match.group(1).strip()
+    else:
+        return None
 
 
 def git_commits_per_date() -> None:
