@@ -15,20 +15,23 @@ reliance on Bash and external utilities:
 
 - **Cross-Platform Compatibility**: `git-quick-stats` can have issues running
   on different platforms. For example, macOS requires GNU versions of certain
-  utilities for proper functionality.
+  utilities for proper functionality, and the Windows version either requires
+  WSL or Cygwin to run.
 - **Dependency on External Tools**: Although it is written in Bash, it depends
-  heavily on external tools like `awk`, `sed`, and `grep`,
-  which may not be available or behave subtly different across systems.
+  heavily on external tools like `tput`, `column`, and `grep`, which may not be
+  installed depending on how the user's system is configured.
 - **Robust File Generation**: `git-quick-stats` has the ability to export
-  stats in JSON and CSV format, but they are home-grown implementations.
+  stats in JSON and CSV format, but they are home-grown implementations that
+  are currently in experimental mode.
 - **Difficult to Test and Extend**: Bash scripts are inherently harder to test
-  and extend compared to a Python-based solution.
+  and extend compared to a Python-based solution that can leverage
+  [unittest](https://docs.python.org/3/library/unittest.html).
 
-Git Py Stats addresses these issues by leveraging Python's standard library,
-ensuring that it pulls in code tested by the Python team and works seamlessly
-on any platform with Python 3 installed. Its goal still maintains the spirit
-of `git-quick-stats` in that it will never require anything outside of
-Python 3 and git.
+Git Py Stats tackles these challenges by leveraging Python's standard library,
+guaranteeing that it incorporates code vetted by the Python team and operates
+smoothly on any platform with Python 3 installed. It stays true to the essence
+of `git-quick-stats` by ensuring that no dependencies beyond Python 3 and `git`
+are ever required.
 
 ## Features
 
