@@ -2,6 +2,7 @@ import unittest
 
 from git_py_stats.git_operations import run_git_command, check_git_repository
 
+
 class TestGitOperations(unittest.TestCase):
     """
     Unit test class for testing git_operations.
@@ -18,8 +19,8 @@ class TestGitOperations(unittest.TestCase):
         The test might fail if git is not installed or if the command path is not
         correctly set.
         """
-        
-        self.assertIsNotNone(run_git_command(['git', '--version']))
+
+        self.assertIsNotNone(run_git_command(["git", "--version"]))
 
     def test_check_git_repository(self) -> None:
         """
@@ -33,9 +34,9 @@ class TestGitOperations(unittest.TestCase):
         the test is run. We should only run this test in a known git repository for
         predictable results.
         """
-        
+
         self.assertIsInstance(check_git_repository(), bool)
 
-if __name__ == '__main__':
-    unittest.main()
 
+if __name__ == "__main__":
+    unittest.main()

@@ -16,6 +16,12 @@ from git_py_stats.config import get_config
 def main() -> None:
     """
     Main function that handles both interactive and non-interactive modes.
+
+    Args:
+        None
+
+    Returns:
+        None
     """
 
     # Check if we are inside a Git repository
@@ -37,6 +43,5 @@ def main() -> None:
         handle_interactive_mode(config)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-

@@ -12,19 +12,21 @@ class TestNonInteractiveMode(unittest.TestCase):
     def setUp(self):
         # Mock configuration for testing
         self.mock_config = {
-            'since': '--since=2020-01-01',
-            'until': '--until=2024-12-31',
-            'merges': '--no-merges',
-            'log_options': '',
-            'pathspec': '--',
-            'limit': 10,
-            'menu_theme': ''
+            "since": "--since=2020-01-01",
+            "until": "--until=2024-12-31",
+            "merges": "--no-merges",
+            "log_options": "",
+            "pathspec": "--",
+            "limit": 10,
+            "menu_theme": "",
         }
 
     # Prevent output to stdout and mock generate_cmds function
-    @patch('git_py_stats.generate_cmds.detailed_git_stats', return_value=None)
-    @patch('git_py_stats.non_interactive_mode.print')
-    def test_handle_non_interactive_mode(self, mock_print, mock_detailed_git_stats) -> None:
+    @patch("git_py_stats.generate_cmds.detailed_git_stats", return_value=None)
+    @patch("git_py_stats.non_interactive_mode.print")
+    def test_handle_non_interactive_mode(
+        self, mock_print, mock_detailed_git_stats
+    ) -> None:
         """
         Test case for handle_non_interactive_mode in non_interactive_mode
 
@@ -40,14 +42,16 @@ class TestNonInteractiveMode(unittest.TestCase):
         and return `None`.
         """
         # Mock sys.argv to simulate command-line arguments
-        test_args = ['git-py-stats', '--detailed-git-stats']
+        test_args = ["git-py-stats", "--detailed-git-stats"]
 
         # Use the argument parser to create an argument namespace
-        with patch('sys.argv', test_args):
+        with patch("sys.argv", test_args):
             args: Namespace = arg_parser.parse_arguments([])
 
         # Call the function with mock configuration and assert the result is None
-        self.assertIsNone(non_interactive_mode.handle_non_interactive_mode(args, self.mock_config))
+        self.assertIsNone(
+            non_interactive_mode.handle_non_interactive_mode(args, self.mock_config)
+        )
 
         # Verify that the mocked function was called
         mock_detailed_git_stats.assert_called_with(self.mock_config)
@@ -56,6 +60,5 @@ class TestNonInteractiveMode(unittest.TestCase):
         mock_print.assert_not_called()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
-

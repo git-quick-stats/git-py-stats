@@ -11,7 +11,7 @@ def run_git_command(cmd: List[str]) -> Optional[str]:
     Runs a git command and returns the output.
 
     Args:
-        cmd: A list of strings representing the git command and its arguments.
+        cmd List[str]: A list of strings representing the git command and its arguments.
 
     Returns:
         The standard output from the git command if successful, None otherwise.
@@ -30,14 +30,16 @@ def check_git_repository() -> bool:
     """
     Checks if the current directory is within a git repository.
 
+    Args:
+        None
+
     Returns:
         True if inside a git repository, False otherwise.
     """
-    cmd = ['git', 'rev-parse', '--is-inside-work-tree']
+    cmd = ["git", "rev-parse", "--is-inside-work-tree"]
     result = run_git_command(cmd)
-    if result == 'true':
+    if result == "true":
         return True
     else:
         print("This script must be run inside a git repository.")
         return False
-

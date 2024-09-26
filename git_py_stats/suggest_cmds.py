@@ -1,12 +1,23 @@
+"""
+Performs all commands in the Suggest section of the program.
+"""
+
 import subprocess
 from collections import defaultdict
+from typing import Dict, Union
 
 from git_py_stats.git_operations import run_git_command
 
 
-def suggest_reviewers(config) -> None:
+def suggest_reviewers(config: Dict[str, Union[str, int]]) -> None:
     """
     Suggests potential code reviewers based on commit history.
+
+    Args:
+        config: Dict[str, Union[str, int]]: Config dictionary holding env vars.
+
+    Returns:
+        None
     """
 
     # Construct the git log command with all options. Original command is:
@@ -15,28 +26,28 @@ def suggest_reviewers(config) -> None:
     #     | sort -nr
     # Then some LC_ALL portion which is currently not important
     # Then pipe it all into column -t -s
-    
+
     # Grab the config options from our config.py.
     # config.py should give fallbacks for these, but for sanity, lets
     # also provide some defaults just in case.
-    merges = config.get('merges', '--no-merges')
-    since = config.get('since', '')
-    until = config.get('until', '')
-    log_options = config.get('log_options', '')
-    pathspec = config.get('pathspec', '')
+    merges = config.get("merges", "--no-merges")
+    since = config.get("since", "")
+    until = config.get("until", "")
+    log_options = config.get("log_options", "")
+    pathspec = config.get("pathspec", "")
 
     cmd = [
-        'git',
-        '-c',
-        'log.showSignature=false',
-        'log',
-        '--use-mailmap',
+        "git",
+        "-c",
+        "log.showSignature=false",
+        "log",
+        "--use-mailmap",
         merges,
         since,
         until,
-        '--pretty=%aN',
+        "--pretty=%aN",
         log_options,
-        pathspec
+        pathspec,
     ]
 
     # Remove any empty space from the cmd
@@ -46,7 +57,7 @@ def suggest_reviewers(config) -> None:
         # Execute the git command and get the output
         output = run_git_command(cmd)
         if not output:
-            print('No data available.')
+            print("No data available.")
             return
 
         # Split the output into lines (each line is a commit author)
@@ -92,4 +103,3 @@ def suggest_reviewers(config) -> None:
 
     except subprocess.CalledProcessError as e:
         print(f"Error executing git command: {e}")
-

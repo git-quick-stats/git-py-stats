@@ -2,25 +2,32 @@
 Provides the interactive menu for Git Py Stats.
 """
 
-def interactive_menu(config) -> str:
+from typing import Dict, Union
+
+
+# TODO: We can refactor this with a few loops to make it more
+#       efficient and less burdened by user-error during coding
+def interactive_menu(config: Dict[str, Union[str, int]]) -> str:
     """
     Displays the interactive menu and gets the user's choice.
 
+    Args:
+        config: Dict[str, Union[str, int]]: Config dictionary holding env vars.
     Returns:
         str: The user's menu choice.
     """
     # ANSI escape codes for colors and formatting
-    NORMAL = '\033[0m'
-    BOLD = '\033[1m'
-    RED = '\033[31m'
-    YELLOW = '\033[33m'
-    WHITE = '\033[37m'
-    CYAN = '\033[36m'
+    NORMAL = "\033[0m"
+    BOLD = "\033[1m"
+    RED = "\033[31m"
+    YELLOW = "\033[33m"
+    WHITE = "\033[37m"
+    CYAN = "\033[36m"
 
     # Handle default and legacy menu
-    theme = config.get('menu_theme', '')
+    theme = config.get("menu_theme", "")
 
-    if theme == 'legacy':
+    if theme == "legacy":
         TITLES = f"{BOLD}{RED}"
         TEXT = f"{NORMAL}{CYAN}"
         NUMS = f"{BOLD}{YELLOW}"
@@ -58,8 +65,10 @@ def interactive_menu(config) -> str:
     print(f"{NUMS}   21){TEXT} Git commits per timezone by author")
     print(f"\n{TITLES} Suggest:{NORMAL}")
     print(f"{NUMS}   22){TEXT} Code reviewers (based on git history)")
-    print(f"\n{HELP_TXT}Please enter a menu option or {EXIT_TXT}press Enter to exit.{NORMAL}")
-    
+    print(
+        f"\n{HELP_TXT}Please enter a menu option or {EXIT_TXT}press Enter to exit.{NORMAL}"
+    )
+
     choice = input(f"{TEXT}> {NORMAL}")
-    
+
     return choice.strip()

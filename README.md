@@ -259,7 +259,7 @@ export _GIT_LOG_OPTIONS="--ignore-all-space --ignore-blank-lines"
 #### Git pathspec
 
 You can exclude a directory from the stats by using
-[pathspec](https://git-scm.com/docs/gitglossary#gitglossary-aiddefpathspecapathspec)
+[pathspec](https://git-scm.com/docs/gitglossary#gitglossary-aiddefpathspecapathspec).
 
 ```bash
 export _GIT_PATHSPEC=':!directory'
@@ -310,6 +310,22 @@ on getting features added. The current structure is as follows:
 
 - **`git_py_stats/`**: Core package
 - **`git_py_stats/tests/`**: Test cases for the various modules
+
+### Code Formatting
+
+This project uses [Black](https://black.readthedocs.io/en/stable/) for code formatting.
+To ensure consistency, please try to autoformat your code with one of the various
+cool autoformatters out there before submitting a PR.
+
+Here is how to format all Python code with Black before submitting changes:
+
+```bash
+pip install black
+cd git-py-stats
+black .
+```
+
+- For more information about Black, refer to the [official documentation](https://black.readthedocs.io/en/stable/).
 
 ### Testing
 
@@ -368,6 +384,8 @@ To contribute:
 3. Make your changes and commit them (`git commit -m 'Add some feature'`).
 4. Push to the branch (`git push origin feature-branch`).
 5. Open a pull request.
+
+Please try to adhere to [PEP 8](https://peps.python.org/pep-0008/).
 
 ## License
 

@@ -11,17 +11,17 @@ class TestListCmds(unittest.TestCase):
     def setUp(self):
         # Mock configuration for testing
         self.mock_config = {
-            'since': '--since=2020-01-01',
-            'until': '--until=2024-12-31',
-            'merges': '--no-merges',
-            'log_options': '',
-            'pathspec': '--',
-            'limit': 10
+            "since": "--since=2020-01-01",
+            "until": "--until=2024-12-31",
+            "merges": "--no-merges",
+            "log_options": "",
+            "pathspec": "--",
+            "limit": 10,
         }
 
     # Prevent printing to stdout and mock git command output
-    @patch('git_py_stats.list_cmds.run_git_command')
-    @patch('git_py_stats.list_cmds.print')
+    @patch("git_py_stats.list_cmds.run_git_command")
+    @patch("git_py_stats.list_cmds.print")
     def test_branch_tree(self, mock_print, mock_run_git_command) -> None:
         """
         Test case for the branch_tree function in the list_cmds module.
@@ -45,6 +45,6 @@ class TestListCmds(unittest.TestCase):
         # Assert that print was called at least once
         mock_print.assert_called()
 
-if __name__ == '__main__':
-    unittest.main()
 
+if __name__ == "__main__":
+    unittest.main()

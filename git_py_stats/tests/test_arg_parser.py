@@ -14,8 +14,8 @@ class TestArgParser(unittest.TestCase):
     """
 
     # Arg parser needs to mock stdout and stderr
-    @patch('sys.stdout', new_callable=io.StringIO)
-    @patch('sys.stderr', new_callable=io.StringIO)
+    @patch("sys.stdout", new_callable=io.StringIO)
+    @patch("sys.stderr", new_callable=io.StringIO)
     def test_parse_arguments(self, mock_stderr, mock_stdout) -> None:
         """
         Test case for parse_arguments in arg_parser.
@@ -33,10 +33,10 @@ class TestArgParser(unittest.TestCase):
         """
 
         # Mock sys.argv with expected command-line arguments
-        test_args = ['git-py-stats', '--help']
+        test_args = ["git-py-stats", "--help"]
 
         # Patch sys.argv with test_args
-        with patch('sys.argv', test_args):
+        with patch("sys.argv", test_args):
             # Expect SystemExit when '--help' is passed
             with self.assertRaises(SystemExit) as cm:
                 # Call parse_arguments with an empty list to simulate no additional args
@@ -48,8 +48,10 @@ class TestArgParser(unittest.TestCase):
         # Verify that the help message was printed to stdout
         output = mock_stdout.getvalue()
         self.assertIn("usage:", output)
-        self.assertIn("Git Py Stats - A Python Implementation of Git Quick Stats.", output)
+        self.assertIn(
+            "Git Py Stats - A Python Implementation of Git Quick Stats.", output
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
-
