@@ -10,39 +10,33 @@ from typing import Dict, Optional
 from git_py_stats.git_operations import run_git_command
 
 
-def branch_tree() -> None:
+def branch_tree(config) -> None:
     """
     Displays a visual graph of recent commits across all branches.
     """
-
-    # Since can be hardcoded for now. It'll be based on the earliest commit
-    # in the repo
-    earliest_commit_date = run_git_command(['git', 'log', '--reverse', '--format=%ad'])
-    if earliest_commit_date:
-        # Take the first line as the earliest commit date
-        first_commit_date = earliest_commit_date.split('\n')[0]
-        since = f"--since='{first_commit_date}'"
-    else:
-        # If no commits, set since to an empty string
-        since = ''
-
-    # Until will be current system's date and time
-    now = datetime.now(timezone.utc).astimezone()
-    until_formatted = now.strftime('%a, %d %b %Y %H:%M:%S %Z')
-    until = f"--until='{until_formatted}'"
     
-    # Empty log options for now
-    log_options = ''
-
-    # Hardcoded limit
-    limit=10
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    limit = config.get('limit', 10)
 
     # Format string for git --format so it gets interpreted correctly
     format_str = "--format=--+ Commit:  %h%n  | Date:    %aD (%ar)%n  | Message: %s %d%n  + Author:  %aN %n"
 
-    # Perform final git command
+    # Original command:
+    # git -c log.showSignature=false log --use-mailmap --graph --abbrev-commit \
+    #     "$_since" "$_until" --decorate \
+    #      --format=format:'--+ Commit:  %h %n  | Date:    %aD (%ar) %n''  | Message: %s %d %n''  + Author:  %aN %n' \
+    #      --all $_log_options | head -n $((_limit*5))
     cmd = [
-        'git', '-c', 'log.showSignature=false', 'log',
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
         '--use-mailmap',
         '--graph',
         '--abbrev-commit',
@@ -50,9 +44,13 @@ def branch_tree() -> None:
         until,
         '--decorate',
         format_str,
-        '--all'
+        '--all',
+        log_options
     ]
 
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+    
     output = run_git_command(cmd)
 
     # handle the head -n $((_limit*5)) portion
@@ -82,7 +80,13 @@ def branches_by_date() -> None:
     #       Then we could pipe it through sort, uniq -c, sort -nr, etc.
     #       Possibly feed back into the parent project
     format_str = "[%(authordate:relative)] %(authorname) %(refname:short)"
-    cmd = ['git', 'for-each-ref', '--sort=committerdate', 'refs/heads/', f'--format={format_str}']
+    cmd = [
+        'git',
+        'for-each-ref',
+        '--sort=committerdate',
+        'refs/heads/',
+        f'--format={format_str}'
+    ]
 
     output = run_git_command(cmd)
     if output:
@@ -100,32 +104,20 @@ def branches_by_date() -> None:
         print('No commits found.')
 
 
-def contributors() -> None:
+def contributors(config) -> None:
     """
     Lists all contributors alphabetically.
     """
 
-    # Hardcode variables
-    # TODO: Make these configurable by the user
-    earliest_commit_date = run_git_command(['git', 'log', '--reverse', '--format=%ad'])
-    if earliest_commit_date:
-        # Take the first line as the earliest commit date
-        first_commit_date = earliest_commit_date.split('\n')[0]
-        since = f"--since='{first_commit_date}'"
-    else:
-        # If no commits, set since to an empty string
-        since = ''
-
-
-    now = datetime.now(timezone.utc).astimezone()
-    until_formatted = now.strftime('%a, %d %b %Y %H:%M:%S %Z')
-    until = f"--until={until_formatted}"
-
-    pathspec = ""  # No pathspec filtering
-
-    merges = "--no-merges"
-    limit = 50
-    log_options = ""
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    pathspec = config.get('pathspec', '')
+    limit = config.get('limit', 10)
 
     # Original command
     #     git -c log.showSignature=false log --use-mailmap $_merges "$_since" "$_until" \
@@ -139,18 +131,13 @@ def contributors() -> None:
         since,
         until,
         '--format=%aN',
-        log_options
+        log_options,
+        pathspec
     ]
 
-    # Append pathspec only if it's not empty. Currently hardcoded
-    if pathspec:
-        cmd.append(pathspec)
-
-    # Remove any empty strings from the command to prevent Git misinterpretation
-    # Breaks without this
+    # Remove any empty space from the cmd
     cmd = [arg for arg in cmd if arg]
 
-    # Execute the Git command
     output = run_git_command(cmd)
     if output:
         print('All contributors (sorted by name):\n')
@@ -173,7 +160,8 @@ def contributors() -> None:
     else:
         print('No contributors found.')
 
-def new_contributors(new_date: str) -> None:
+
+def new_contributors(config, new_date: str) -> None:
     """
     Lists all new contributors to a repo since the specified date.
 
@@ -192,13 +180,14 @@ def new_contributors(new_date: str) -> None:
         print("Invalid date format. Please use YYYY-MM-DD.")
         return
 
-    # User adjustable vars
-    # TODO: Fix these later on
-    merges = "--no-merges"
-    since = ""  # Include the world for now
-    until = ""
-    log_options = ""
-    pathspec = ""
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    pathspec = config.get('pathspec', '')
 
     # Original command:
     # git -c log.showSignature=false log --use-mailmap $_merges \
@@ -217,8 +206,7 @@ def new_contributors(new_date: str) -> None:
         pathspec
     ]
 
-    # Remove any empty strings from the command to prevent Git misinterpretation
-    # Needed when we start messing with datetime stuff
+    # Remove any empty strings from the command
     cmd = [arg for arg in cmd if arg]
 
     output = run_git_command(cmd)
@@ -250,14 +238,24 @@ def new_contributors(new_date: str) -> None:
                 #     --format='%at' $_log_options $_pathspec | head -n 1
                 name_cmd = [
                     'git',
-                    '-c', 'log.showSignature=false',
+                    '-c',
+                    'log.showSignature=false',
                     'log',
-                    '--use-mailmap',
-                    '--format=%aN',
                     '--author=' + email,
-                    '-n', '1'
+                    '--reverse',
+                    '--use-mailmap',
+                    since,
+                    until,
+                    '--format=%aN',
+                    log_options,
+                    pathspec,
+                    '-n',
+                    '1'
                 ]
 
+                # Remove any empty strings from the command
+                name_cmd = [arg for arg in name_cmd if arg]
+                
                 # Grab name + email if we can. Otherwise, just grab email
                 name = run_git_command(name_cmd)
                 if name:
@@ -281,10 +279,19 @@ def new_contributors(new_date: str) -> None:
         print('No contributors found.')
 
 
-def git_commits_per_author() -> None:
+def git_commits_per_author(config) -> None:
     """
     Shows the number of commits per author.
     """
+
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    pathspec = config.get('pathspec', '')
     
     # Original authors command:
     # git -c log.showSignature=false log --use-mailmap \
@@ -297,13 +304,21 @@ def git_commits_per_author() -> None:
     #     --format='%at' $_log_options $_pathspec | head -n 1
     cmd = [
         'git',
-        '-c', 'log.showSignature=false',
+        '-c',
+        'log.showSignature=false',
         'log',
         '--use-mailmap',
-        '--no-merges',
-        '--pretty=format:Author:%aN <%aE>%n%b'
+        merges,
+        since,
+        until,
+        '--pretty=format:Author:%aN <%aE>%n%b',
+        log_options,
+        pathspec
     ]
 
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+    
     output = run_git_command(cmd)
     if not output:
         print('No commits found.')
@@ -385,38 +400,40 @@ def extract_name(author_info: str) -> Optional[str]:
         return None
 
 
-def git_commits_per_date() -> None:
+def git_commits_per_date(config) -> None:
     """
     Displays commits grouped by date.
     """
     
-    # Customizable vars in the future
-    mailmap = "--use-mailmap"
-    merges = "--no-merges"
-    #log_options
-    #pathspec
-    
-    # Since can be hardcoded for now. It'll be based on the earliest commit
-    # in the repo
-    earliest_commit_date = run_git_command(['git', 'log', '--reverse', '--format=%ad'])
-    if earliest_commit_date:
-        # Take the first line as the earliest commit date
-        first_commit_date = earliest_commit_date.split('\n')[0]
-        since = f"--since='{first_commit_date}'"
-    else:
-        # If no commits, set since to an empty string
-        since = ''
-
-    # Until will be current system's date and time
-    now = datetime.now(timezone.utc).astimezone()
-    until_formatted = now.strftime('%a, %d %b %Y %H:%M:%S %Z')
-    until = f"--until='{until_formatted}'"
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    pathspec = config.get('pathspec', '')
 
     # Original command
     #  git -c log.showSignature=false log --use-mailmap $_merges "$_since" "$_until" \
     #      --date=short --format='%ad' $_log_options $_pathspec | sort | uniq -c
-    cmd = ['git', '-c', 'log.showSignature=false', 'log', mailmap, merges,
-           since, until, '--date=short', '--pretty=format:%ad']
+    cmd = [
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
+        '--use-mailmap',
+        merges,
+        since,
+        until,
+        '--date=short',
+        '--pretty=format:%ad',
+        log_options,
+        pathspec
+    ]
+
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
     
     # Print out the commit count and date in YYYY-MM-DD format
     output = run_git_command(cmd)
@@ -436,11 +453,19 @@ def git_commits_per_date() -> None:
         print('No commits found.')
 
 
-def git_commits_per_month() -> None:
+def git_commits_per_month(config) -> None:
     """
     Displays commits grouped by month.
     """
     
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+
     # Define months
     months_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -461,14 +486,21 @@ def git_commits_per_month() -> None:
     # NOTE: We can grab the month via %b
     cmd = [
         'git',
-        '-c', 'log.showSignature=false',
+        '-c',
+        'log.showSignature=false',
         'log',
         '--use-mailmap',
-        '--no-merges',
+        merges,
         '--date=format:%b',
-        '--pretty=format:%cd'
+        '--pretty=format:%cd',
+        since,
+        until,
+        log_options
     ]
 
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+    
     output = run_git_command(cmd)
 
     if output:
@@ -511,14 +543,24 @@ def git_commits_per_month() -> None:
         print('No commits found.')
 
 
-def git_commits_per_year() -> None:
+def git_commits_per_year(config) -> None:
     """
     Displays commits grouped by year.
     """
+    
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+
     # Bar length
     # TODO: Make this user adjustable
-
     max_bar_length = 30
+    
+
     # Original command:
     #  git -c log.showSignature=false shortlog -n $_merges --format='%ad %s' \
     #      "$__since" "$__until" $_log_options | grep -cE \
@@ -527,14 +569,21 @@ def git_commits_per_year() -> None:
     # Note, we can use %Y to grab the year
     cmd = [
         'git',
-        '-c', 'log.showSignature=false',
+        '-c',
+        'log.showSignature=false',
         'log',
         '--use-mailmap',
-        '--no-merges',
+        merges,
         '--date=format:%Y',
-        '--pretty=format:%cd'
+        '--pretty=format:%cd',
+        since,
+        until,
+        log_options
     ]
 
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+    
     output = run_git_command(cmd)
     if output:
         print('Git commits by year:\n')
@@ -587,7 +636,7 @@ def git_commits_per_year() -> None:
         print('No commits found.')
 
 
-def git_commits_per_weekday(author: Optional[str] = None) -> None:
+def git_commits_per_weekday(config, author: Optional[str] = None) -> None:
     """
     Shows commits grouped by weekday. If an author is provided, it shows
     commits grouped by weekday for that specific author.
@@ -596,7 +645,14 @@ def git_commits_per_weekday(author: Optional[str] = None) -> None:
         author (Optional[str]): The author you want to show the commits grouped by.
                                 If None, show for all authors.
     """
-    # Temp in var for now
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+
     # TODO: Make this user adjustable
     max_bar_length = 30
     
@@ -615,11 +671,25 @@ def git_commits_per_weekday(author: Optional[str] = None) -> None:
     # git -c log.showSignature=false shortlog -n $_merges --format='%ad %s' \
     #     "${_author}" "$_since" "$_until" $_log_options |
     #     grep -cE "^ * $i \w\w\w [0-9]{1,2} " || continue
-    if author:
-        cmd = ['git', 'log', '--author', author, '--pretty=format:%cd', '--date=format:%a']
-    else:
-        cmd = ['git', 'log', '--pretty=format:%cd', '--date=format:%a']
+    author_option = f'--author={author}' if author else ''
 
+    cmd = [
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
+        merges,
+        '--pretty=format:%cd',
+        '--date=format:%a',
+        author_option,
+        since,
+        until,
+        log_options
+    ]
+
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+    
     output = run_git_command(cmd)
     if output:
         # Split the output into individual weekday abbreviations
@@ -670,7 +740,7 @@ def git_commits_per_weekday(author: Optional[str] = None) -> None:
             print('No commits found.')
 
 
-def git_commits_per_hour(author: Optional[str] = None) -> None:
+def git_commits_per_hour(config, author: Optional[str] = None) -> None:
     """
     Shows commits grouped by hour of the day. If an author is provided, 
     it shows commits grouped by hour for that specific author.
@@ -679,30 +749,52 @@ def git_commits_per_hour(author: Optional[str] = None) -> None:
         author (Optional[str]): The author to show the commits grouped by. 
                                 If None, show for all authors.
     """
-    # Temp in a var for now to adjust bar length
+
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity,
+    # lets also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+
     # TODO: Make this user adjustable
     max_bar_length = 20
     
-    if author:
-        print(f"Git commits by hour for author '{author}':")
-    else:
-        print("Git commits by hour:")
-
     # Define the order of hours (00 to 23)
     hours_order = [f"{hour:02d}" for hour in range(24)]
 
     # Initialize commit counts for each hour
     commit_counts = {hour: 0 for hour in hours_order}
+    
+    if author:
+        print(f"Git commits by hour for author '{author}':")
+    else:
+        print("Git commits by hour:")
+    
+    author_option = f'--author={author}' if author else ''
 
     # Original git command:
     #  git -c log.showSignature=false shortlog -n $_merges --format='%ad %s' \
     #      "${_author}" "$_since" "$_until" $_log_options |
     #      grep -cE '[0-9] '$i':[0-9]' || continue
-    if author:
-        cmd = ['git', 'log', '--author', author, '--pretty=format:%cd', '--date=format:%H']
-    else:
-        cmd = ['git', 'log', '--pretty=format:%cd', '--date=format:%H']
+    cmd = [
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
+        merges,
+        '--pretty=format:%cd',
+        '--date=format:%H',
+        author_option,
+        since,
+        until,
+        log_options
+    ]
 
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+    
     output = run_git_command(cmd)
     if output:
         # Split the output into individual hour abbreviations
@@ -753,7 +845,7 @@ def git_commits_per_hour(author: Optional[str] = None) -> None:
             print('No commits found.')
 
 
-def git_commits_per_timezone(author: Optional[str] = None) -> None:
+def git_commits_per_timezone(config, author: Optional[str] = None) -> None:
     """
     Displays commits grouped by timezone. If an author is provided, it shows
     commits grouped by timezone for that specific author.
@@ -762,6 +854,19 @@ def git_commits_per_timezone(author: Optional[str] = None) -> None:
         author (Optional[str]): The author to show the commits grouped by.
                                 If None, show for all authors.
     """
+    
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity,
+    # lets also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    pathspec = config.get('pathspec', '')
+
+    # Initialize commit counts in a collection for easy storage and access
+    commit_counts = collections.Counter()
+    
     # Original command:
     #  git -c log.showSignature=false log $_merges --format='%ad %s' \
     #      "${_author}" "$_since" "$_until" --date=iso $_log_options $_pathspec \
@@ -771,15 +876,26 @@ def git_commits_per_timezone(author: Optional[str] = None) -> None:
     else:
         print("Git commits by timezone:\n")
 
-    # Initialize commit counts in a collection for easy storage and access
-    commit_counts = collections.Counter()
+    author_option = f'--author={author}' if author else ''
 
-    # Build git command based on whether an author is provided
-    if author:
-        cmd = ['git', 'log', '--author', author, '--pretty=format:%cd', '--date=iso']
-    else:
-        cmd = ['git', 'log', '--pretty=format:%cd', '--date=iso']
+    cmd = [
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
+        merges,
+        '--pretty=format:%ad %s',
+        author_option,
+        since,
+        until,
+        '--date=iso',
+        log_options,
+        pathspec
+    ]
 
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+    
     output = run_git_command(cmd)
     if output:
         # Extract timezone offsets from each commit

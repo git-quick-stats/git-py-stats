@@ -3,7 +3,8 @@ from collections import defaultdict
 
 from git_py_stats.git_operations import run_git_command
 
-def suggest_reviewers() -> None:
+
+def suggest_reviewers(config) -> None:
     """
     Suggests potential code reviewers based on commit history.
     """
@@ -14,15 +15,36 @@ def suggest_reviewers() -> None:
     #     | sort -nr
     # Then some LC_ALL portion which is currently not important
     # Then pipe it all into column -t -s
-    #
-    # For now, let's just hardcode some of this stuff
-    cmd = ['git', '-c', 'log.showSignature=false', 'log', '--use-mailmap', '--no-merges', '--pretty=%aN']
+    
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    pathspec = config.get('pathspec', '')
+
+    cmd = [
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
+        '--use-mailmap',
+        merges,
+        since,
+        until,
+        '--pretty=%aN',
+        log_options,
+        pathspec
+    ]
+
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
 
     try:
         # Execute the git command and get the output
         output = run_git_command(cmd)
-
-        # Check if output is empty
         if not output:
             print('No data available.')
             return

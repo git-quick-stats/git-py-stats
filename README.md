@@ -78,16 +78,16 @@ project's version. Not Yet Implemented means it does not exist yet:
 | **Git Commits per Hour by Author**              | Completed ✔️            | Shows hourly commit count hour by given author.         |
 | **Git Commits per Timezone**                    | Completed ✔️            | Counts commits based on timezones.                      |
 | **Git Commits per Timezone by Author**          | Completed ✔️            | Shows timezone-based commit counts by given author.     |
-| **Since Variable Adjustable by User**           | Not Yet Implemented ❌ | Allows users to set the starting point for commit logs. |
-| **Until Variable Adjustable by User**           | Not Yet Implemented ❌ | Enables users to define the end point for commit logs.  |
-| **Pathspec Variable Adjustable by User**        | Not Yet Implemented ❌ | Filters commits based on specified path patterns.       |
-| **Merge View Variable Adjustable by User**      | Not Yet Implemented ❌ | Controls the inclusion of merge commits in views.       |
-| **Limit Variable Adjustable by User**           | Not Yet Implemented ❌ | Sets the maximum number of commits to display.          |
-| **Log Options Variable Adjustable by User**     | Not Yet Implemented ❌ | Customizes git log command options.                     |
-| **Legacy Theme**                                | Not Yet Implemented ❌ | Restores the previous visual theme of the application.  |
+| **Since Variable Adjustable by User**           | Completed ✔️            | Allows users to set the starting point for commit logs. |
+| **Until Variable Adjustable by User**           | Completed ✔️            | Enables users to define the end point for commit logs.  |
+| **Pathspec Variable Adjustable by User**        | Completed ✔️            | Filters commits based on specified path patterns.       |
+| **Merge View Variable Adjustable by User**      | Completed ✔️            | Controls the inclusion of merge commits in views.       |
+| **Limit Variable Adjustable by User**           | Completed ✔️            | Sets the maximum number of commits to display.          |
+| **Log Options Variable Adjustable by User**     | Completed ✔️            | Customizes git log command options.                     |
+| **Legacy Theme**                                | Completed ✔️            | Restores the previous visual theme of the application.  |
 | **Linux Package Install**                       | Not Yet Implemented ❌ | Allows Linux users to install via a package manager.    |
 | **macOS Package install**                       | Not Yet Implemented ❌ | Allows macOS users to install via brew.                 |
-| **Docker Development Image**                    | Not Yet Implemented ❌ | Provides a Docker development image for CI/CD.          |
+| **Docker Development Image**                    | Completed ✔️            | Provides a Docker development image for CI/CD.          |
 
 ## Changes from Original
 
@@ -96,15 +96,16 @@ there may be instances where this version differs from the base project by desig
 The following is a list of differences that this project will maintain compared to
 the parent project:
 
-* Author, dates, and branch names can be passed via cmdline without interaction
+- Author, dates, and branch names can be passed via cmdline without interaction
   by the user. This means you can now do `git-py-stats -L "John Doe"` instead
   of being prompted to enter the name after executing the non-interactive cmd.
-* CSV output is now saved to a file instead of printing out to the terminal.
+- CSV output is now saved to a file instead of printing out to the terminal.
   This file will be saved to wherever the process was executed. The name will
   be `git_daily_stats.csv`
-* JSON output is saved to a file wherever the process was executed instead of
+- JSON output is saved to a file wherever the process was executed instead of
   one that is provided by the user. The name will be `git_log.json`
-* The New Contributors function shows the user's name next to the email in case
+- JSON and CSV formatting has changed slightly from the original.
+- The New Contributors function shows the user's name next to the email in case
   no known mailmap has been implemented for that user.
 
 ## Requirements
@@ -214,6 +215,92 @@ For a full list of available options, run:
 
 ```bash
 git-py-stats --help
+```
+
+### Advanced Usage
+
+It is possible for `git-py-stats` to read shell environment variables just like
+`git-quick-stats` does. As it aims to maintain 1:1 compatibility, all of the
+same arguments work the same as the parent project.
+
+#### Git log since and until
+
+You can set the variables `_GIT_SINCE` and/or `_GIT_UNTIL` before running
+`git-py-stats` to limit the git log.
+These work similar to git's built-in `--since` and `--until` log options.
+
+```bash
+export _GIT_SINCE="2017-01-20"
+export _GIT_UNTIL="2017-01-22"
+```
+
+Once set, run `git-py-stats` as normal. Note that this affects all stats that
+parse the git log history until unset.
+
+#### Git log limit
+
+You can set variable `_GIT_LIMIT` for limited output.
+It will affect the "changelogs" and "branch tree" options.
+The default limit is `10`.
+
+```bash
+export _GIT_LIMIT=20
+```
+
+#### Git log options
+
+You can set `_GIT_LOG_OPTIONS` for
+[git log options](https://git-scm.com/docs/git-log#_options):
+
+```bash
+export _GIT_LOG_OPTIONS="--ignore-all-space --ignore-blank-lines"
+```
+
+#### Git pathspec
+
+You can exclude a directory from the stats by using
+[pathspec](https://git-scm.com/docs/gitglossary#gitglossary-aiddefpathspecapathspec)
+
+```bash
+export _GIT_PATHSPEC=':!directory'
+```
+
+You can also exclude files from the stats.
+Note that it works with any alphanumeric, glob, or regex that git respects.
+
+```bash
+export _GIT_PATHSPEC=':!package-lock.json'
+```
+
+#### Git merge view strategy
+
+You can set the variable `_GIT_MERGE_VIEW` to enable merge commits to be part
+of the stats by setting `_GIT_MERGE_VIEW` to `enable`. You can also choose to
+only show merge commits by setting `_GIT_MERGE_VIEW` to `exclusive`.
+Default is to not show merge commits.
+These work similar to git's built-in `--merges` and `--no-merges` log options.
+
+```bash
+export _GIT_MERGE_VIEW="enable"
+export _GIT_MERGE_VIEW="exclusive"
+```
+
+#### Git branch
+
+You can set the variable `_GIT_BRANCH` to set the branch of the stats.
+Works with commands `--git-stats-by-branch` and `--csv-output-by-branch`.
+
+```bash
+export _GIT_BRANCH="master"
+```
+
+#### Color themes
+
+You can change to the legacy color scheme by toggling the variable
+`_MENU_THEME` between `default` and `legacy`
+
+```bash
+export _MENU_THEME="legacy"
 ```
 
 ## Development

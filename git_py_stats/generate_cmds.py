@@ -4,25 +4,23 @@ Functions related to the 'Generate' section.
 
 import collections
 import csv
-from datetime import datetime, timedelta
 import json
 import os
 import re
 from typing import Optional, Dict, Any, List
+from datetime import datetime, timedelta
+
 from git_py_stats.git_operations import run_git_command
 
 
-def contribution_stats_by_author(branch: Optional[str] = None) -> None:
+def detailed_git_stats(config: Dict[str, Any], branch: Optional[str] = None) -> None:
     """
     Displays detailed contribution stats by author.
 
     Args:
+        config (Dict[str, Any]): Config dictionary holding env vars.
         branch: The git branch to analyze. If None, use the current branch.
     """
-
-    # NOTE: This is fairly annotated since the original function
-    #       is fairly complex in general, and I wanted this to be
-    #       as close as possible.
 
     # Reset all relevant variables
     author_stats: Dict[str, Dict[str, Any]] = {}
@@ -30,17 +28,48 @@ def contribution_stats_by_author(branch: Optional[str] = None) -> None:
     total_deletions = 0
     total_files = set()
     total_commits = 0
-
-    # Define the git command
+    
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity,
+    # lets also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    pathspec = config.get('pathspec', '')
+    
+    # Original command:
+    # git -c log.showSignature=false log ${_branch} --use-mailmap $_merges --numstat \
+    #     --pretty="format:commit %H%nAuthor: %aN <%aE>%nDate:   %ad%n%n%w(0,4,4)%B%n" \
+    #     "$_since" "$_until" $_log_options $_pathspec
+    # Define the git base command
     cmd = [
-        'git', 'log',
-        '--pretty=format:%H%x09%an%x09%ae%x09%ad',
-        '--numstat',
-        '--date=raw'
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
     ]
+    
+    # Handle optional branch arg
     if branch:
         cmd.append(branch)
+   
+    # Create the rest of the command
+    cmd.extend([
+        '--use-mailmap',
+        merges,
+        '--numstat',
+        '--pretty=format:%H%x09%an%x09%ae%x09%ad',
+        '--date=raw',
+        since,
+        until,
+        log_options,
+        pathspec
+    ])
 
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+    
     output = run_git_command(cmd)
     if not output:
         return
@@ -154,9 +183,9 @@ def contribution_stats_by_author(branch: Optional[str] = None) -> None:
     print(f"           commits:       {total_commits:<6} (100%)\n")
 
 
-def changelogs(author: Optional[str] = None, limit: int = 10) -> None:
+def changelogs(config: Dict[str, Any], author: Optional[str] = None) -> None:
     """
-    Shows commit messages grouped by date, for the last 'limit' dates where commits occurred.
+    Shows commit messages grouped by date for the last 'limit' dates where commits occurred.
 
     Args:
         If an author is provided, it shows commit messages from that author.
@@ -164,20 +193,47 @@ def changelogs(author: Optional[str] = None, limit: int = 10) -> None:
     """
 
     # Initialize variables similar to the Bash version
-    # TODO: Refactor this when we add global adjustment capabilities
     next_date = datetime.now().date()
     author_option = f'--author={author}' if author else ''
-    merges_option = '--no-merges'  # Adjust as per the Bash global variable _merges
 
-    # Get unique commit dates
-    # Original version:
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity,
+    # lets also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    pathspec = config.get('pathspec', '')
+    limit = config.get('limit', '10')
+
+    # Original git command:
     # git -c log.showSignature=false log --use-mailmap $_merges --format="%cd" --date=short "${_author}"
     #     "$_since" "$_until" $_log_options $_pathspec
-    cmd = ['git', 'log', '--use-mailmap', merges_option, '--format=%cd', '--date=short']
+    cmd = [
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
+        '--use-mailmap',
+        merges,
+        '--format=%cd',
+        '--date=short',
+    ]
+
     if author_option:
         cmd.append(author_option)
 
-    print('Git changelogs (last 10 commits)')
+    cmd.extend([
+        since,
+        until,
+        log_options,
+        pathspec
+    ])
+
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+
+    print(f'Git changelogs (last {limit} commits)')
 
     # Get commit dates
     output = run_git_command(cmd)
@@ -196,10 +252,14 @@ def changelogs(author: Optional[str] = None, limit: int = 10) -> None:
     for date_str in dates:
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         day_of_week = date.strftime('%A')
+
         print(f"\n[{date_str} - {day_of_week}]")
 
         since_date = (date - timedelta(days=1)).strftime('%Y-%m-%d')
         until_date = next_date.strftime('%Y-%m-%d')
+
+        since_option = f'--since={since_date}'
+        until_option = f'--until={until_date}'
 
         # Build git log command for the date range
         # Note the space between the --format and *. This provides
@@ -209,29 +269,46 @@ def changelogs(author: Optional[str] = None, limit: int = 10) -> None:
         #      --use-mailmap $_merges --format=" * %s (%aN)" \
         #      "${_author}" --since==$(date -d "$DATE - 1 day" +"%Y-%m-%d") \
         #      --until=$next
-        cmd = [
-            'git', 'log', '--use-mailmap', merges_option,
+        date_cmd = [
+            'git',
+            '-c',
+            'log.showSignature=false',
+            'log',
+            '--use-mailmap',
+            merges,
             '--format= * %s (%aN)',
-            f'--since={since_date}',
-            f'--until={until_date}'
         ]
-        if author_option:
-            cmd.append(author_option)
 
+        if author_option:
+            date_cmd.append(author_option)
+        
+        date_cmd.extend([
+            since_option,
+            until_option
+        ])
+
+        # Remove any empty space from the date_cmd
+        date_cmd = [arg for arg in date_cmd if arg]
         # Output everything to the terminal
         # Note the space added. This provides the initial space
         # before the asterisk for every initial entry
-        output = run_git_command(cmd)
+        output = run_git_command(date_cmd)
         if output:
             print(f" {output}")
         next_date = date  # Update next_date for the next iteration
 
 
-def my_daily_status() -> None:
+def my_daily_status(config: Dict[str, Any]) -> None:
     """
     Displays the user's commits from the last day.
     """
 
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity,
+    # lets also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    log_options = config.get('log_options', '')
+    
     print('My daily status:')
 
     # Equivalent Bash Command:
@@ -240,10 +317,14 @@ def my_daily_status() -> None:
     #                     { printf "\t%s\n", args[i] } }'
 
     # Mimic 'git diff --shortstat "@{0 day ago}"'
-    diff_cmd = ['git', 'diff', '--shortstat', '@{0 day ago}']
+    diff_cmd = [
+        'git',
+        'diff',
+        '--shortstat',
+        '@{0 day ago}'
+    ]
+    
     diff_output = run_git_command(diff_cmd)
-
-    # Process diff output:
     if diff_output:
         # Replace commas with newlines
         diff_lines = [line.strip() for line in diff_output.split(',')]
@@ -269,30 +350,29 @@ def my_daily_status() -> None:
     if not git_user:
         git_user = 'unknown'
 
-    # Define global variables with default values
-    # TODO: Refactor these to be configurable
-    merges_option = '--no-merges'
-    log_options = ''
-
     # Get today's date in the format 'YYYY-MM-DD' to match the original cmd
     today = datetime.now().strftime('%Y-%m-%d')
-    since = f"{today}T00:00:00"
-    until = f"{today}T23:59:59"
+    since = f"--since={today}T00:00:00"
+    until = f"--until={today}T23:59:59"
 
     # Build the final git log command
     log_cmd = [
-        'git', '-c', 'log.showSignature=false', 'log',
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
         '--use-mailmap',
-        '--author', git_user,
-        merges_option,
-        '--since', since,
-        '--until', until,
-        '--reverse'
+        '--author',
+        git_user,
+        merges,
+        since,
+        until,
+        '--reverse',
+        log_options
     ]
 
-    # Added to handle log options in the future
-    if log_options:
-        log_cmd.extend(log_options.split())
+    # Remove any empty space from the log_cmd
+    log_cmd = [arg for arg in log_cmd if arg]
 
     # Execute the git log command
     log_output = run_git_command(log_cmd)
@@ -313,15 +393,45 @@ def my_daily_status() -> None:
     print(f"\t{commit_count} commits")
 
 
-def output_daily_stats_csv() -> None:
+def output_daily_stats_csv(config: Dict[str, Any]) -> None:
     """
     Exports daily commit counts to a CSV file.
     """
     
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+    pathspec = config.get('pathspec', '')
+
     branch = input("Enter branch name (leave empty for current branch): ")
-    cmd = ['git', 'log', '--date=short', '--pretty=format:%cd']
-    if branch:
-        cmd.insert(2, branch)
+    
+    # Original command:
+    # git -c log.showSignature=false log ${_branch} --use-mailmap $_merges --numstat \
+    #     --pretty="format:commit %H%nAuthor: %aN <%aE>%nDate:   %ad%n%n%w(0,4,4)%B%n" \
+    #     "$_since" "$_until" $_log_options $_pathspec
+    cmd = [
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
+        branch,
+        '--use-mailmap',
+        merges,
+        '--numstat',
+        '--pretty=format:commit %H%nAuthor: %aN <%aE>%nDate:   %ad%n%n%w(0,4,4)%B%n',
+        since,
+        until,
+        log_options,
+        pathspec
+    ]
+
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]
+    
     output = run_git_command(cmd)
     if output:
         dates = output.split('\n')
@@ -341,13 +451,44 @@ def output_daily_stats_csv() -> None:
         print('No data available.')
 
 
-# TODO: This doesn't match the original functionality
-def save_git_log_output_json() -> None:
+# TODO: This doesn't match the original functionality as it uses some pretty
+#       tricky shell code to format everything, as well as blast a bunch of
+#       info out into a JSON file. For now, let's take a simple approach
+#       that'll meet the needs of most people
+def save_git_log_output_json(config: Dict[str, Any]) -> None:
     """
     Saves detailed commit logs to a JSON file.
     """
     
-    cmd = ['git', 'log', '--pretty=format:%H|%an|%ad|%s', '--date=iso']
+    # Grab the config options from our config.py.
+    # config.py should give fallbacks for these, but for sanity, lets
+    # also provide some defaults just in case.
+    merges = config.get('merges', '--no-merges')
+    since = config.get('since', '')
+    until = config.get('until', '')
+    log_options = config.get('log_options', '')
+
+    # Original command:
+    # git -c log.showSignature=false log --use-mailmap $_merges "$_since" "$_until" $_log_options \
+    #     --pretty=format: <trimmed for brevity>
+    cmd = [
+        'git',
+        '-c',
+        'log.showSignature=false',
+        'log',
+        '--use-mailmap',
+        merges,
+        since,
+        until,
+        log_options,
+        '--pretty=format:%H|%an|%ad|%s',
+        '--date=iso'
+    ]
+
+    # Remove any empty space from the cmd
+    cmd = [arg for arg in cmd if arg]      
+    
+    # Process the output into a JSON file
     output = run_git_command(cmd)
     if output:
         commits: List[Dict[str, Any]] = []

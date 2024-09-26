@@ -10,6 +10,7 @@ from git_py_stats.git_operations import check_git_repository
 from git_py_stats.arg_parser import parse_arguments
 from git_py_stats.interactive_mode import handle_interactive_mode
 from git_py_stats.non_interactive_mode import handle_non_interactive_mode
+from git_py_stats.config import get_config
 
 
 def main() -> None:
@@ -23,14 +24,17 @@ def main() -> None:
         print("Please navigate to a Git repository and try again.")
         sys.exit(1)
 
+    # Get env config
+    config = get_config()
+
     # Parse command-line arguments
     args = parse_arguments()
 
     # Non-Interactive Mode based on if we see command-line arguments
     if len(sys.argv) > 1:
-        handle_non_interactive_mode(args)
+        handle_non_interactive_mode(args, config)
     else:
-        handle_interactive_mode()
+        handle_interactive_mode(config)
 
 
 if __name__ == '__main__':

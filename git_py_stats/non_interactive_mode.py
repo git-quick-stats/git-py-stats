@@ -5,7 +5,7 @@ from git_py_stats import list_cmds
 from git_py_stats import suggest_cmds
 
 
-def handle_non_interactive_mode(args) -> None:
+def handle_non_interactive_mode(args, config) -> None:
     """
     Handle the non-interactive mode based on command-line arguments.
 
@@ -13,28 +13,28 @@ def handle_non_interactive_mode(args) -> None:
         args: Parsed command-line arguments.
     """
     non_interactive_map = {
-        'detailed_git_stats': generate_cmds.contribution_stats_by_author,
-        'git_stats_by_branch': lambda: generate_cmds.contribution_stats_by_author(args.git_stats_by_branch),
-        'changelogs': generate_cmds.changelogs,
-        'changelogs_by_author': lambda: generate_cmds.changelogs(args.changelogs_by_author),
-        'my_daily_stats': generate_cmds.my_daily_status,
-        'csv_output_by_branch': generate_cmds.output_daily_stats_csv,
-        'json_output': generate_cmds.save_git_log_output_json,
-        'branch_tree': list_cmds.branch_tree,
+        'detailed_git_stats': lambda: generate_cmds.detailed_git_stats(config),
+        'git_stats_by_branch': lambda: generate_cmds.detailed_git_stats(config, args.git_stats_by_branch),
+        'changelogs': lambda: generate_cmds.changelogs(config),
+        'changelogs_by_author': lambda: generate_cmds.changelogs(config, args.changelogs_by_author),
+        'my_daily_stats': lambda: generate_cmds.my_daily_status(config),
+        'csv_output_by_branch': lambda: generate_cmds.output_daily_stats_csv(config),
+        'json_output': lambda: generate_cmds.save_git_log_output_json(config),
+        'branch_tree': lambda: list_cmds.branch_tree(config),
         'branches_by_date': list_cmds.branches_by_date,
-        'contributors': list_cmds.contributors,
-        'new_contributors': lambda: list_cmds.new_contributors(args.new_contributors),
-        'commits_per_author': list_cmds.git_commits_per_author,
-        'commits_per_day': list_cmds.git_commits_per_date,
-        'commits_by_year': list_cmds.git_commits_per_year,
-        'commits_by_month': list_cmds.git_commits_per_month,
-        'commits_by_weekday': list_cmds.git_commits_per_weekday,
-        'commits_by_author_by_weekday': lambda: list_cmds.git_commits_per_weekday(args.commits_by_author_by_weekday),
-        'commits_by_hour': list_cmds.git_commits_per_hour,
-        'commits_by_author_by_hour': lambda: list_cmds.git_commits_per_hour(args.commits_by_author_by_hour),
-        'commits_by_timezone': list_cmds.git_commits_per_timezone,
-        'commits_by_author_by_timezone': lambda: list_cmds.git_commits_per_timezone(args.commits_by_author_by_timezone),
-        'suggest_reviewers': suggest_cmds.suggest_reviewers,
+        'contributors': lambda: list_cmds.contributors(config),
+        'new_contributors': lambda: list_cmds.new_contributors(config, args.new_contributors),
+        'commits_per_author': lambda: list_cmds.git_commits_per_author(config),
+        'commits_per_day': lambda: list_cmds.git_commits_per_date(config),
+        'commits_by_year': lambda: list_cmds.git_commits_per_year(config),
+        'commits_by_month': lambda: list_cmds.git_commits_per_month(config),
+        'commits_by_weekday': lambda: list_cmds.git_commits_per_weekday(config),
+        'commits_by_author_by_weekday': lambda: list_cmds.git_commits_per_weekday(config, args.commits_by_author_by_weekday),
+        'commits_by_hour': lambda: list_cmds.git_commits_per_hour(config),
+        'commits_by_author_by_hour': lambda: list_cmds.git_commits_per_hour(config, args.commits_by_author_by_hour),
+        'commits_by_timezone': lambda: list_cmds.git_commits_per_timezone(config),
+        'commits_by_author_by_timezone': lambda: list_cmds.git_commits_per_timezone(config, args.commits_by_author_by_timezone),
+        'suggest_reviewers': lambda: suggest_cmds.suggest_reviewers(config),
     }
 
     # Call the appropriate function based on the command-line argument

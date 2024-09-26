@@ -2,7 +2,7 @@
 Provides the interactive menu for Git Py Stats.
 """
 
-def interactive_menu() -> str:
+def interactive_menu(config) -> str:
     """
     Displays the interactive menu and gets the user's choice.
 
@@ -12,18 +12,26 @@ def interactive_menu() -> str:
     # ANSI escape codes for colors and formatting
     NORMAL = '\033[0m'
     BOLD = '\033[1m'
-    RED = '\033[31m' # Not currently used
+    RED = '\033[31m'
     YELLOW = '\033[33m'
     WHITE = '\033[37m'
     CYAN = '\033[36m'
 
-    # This mostly follows the original formatting nearly 1:1
-    # Note that there is no legacy menu option yet
-    TITLES = f"{BOLD}{CYAN}"
-    TEXT = f"{NORMAL}{WHITE}"
-    NUMS = f"{NORMAL}{BOLD}{WHITE}"
-    HELP_TXT = f"{NORMAL}{CYAN}"
-    EXIT_TXT = f"{BOLD}{CYAN}"
+    # Handle default and legacy menu
+    theme = config.get('menu_theme', '')
+
+    if theme == 'legacy':
+        TITLES = f"{BOLD}{RED}"
+        TEXT = f"{NORMAL}{CYAN}"
+        NUMS = f"{BOLD}{YELLOW}"
+        HELP_TXT = f"{NORMAL}{YELLOW}"
+        EXIT_TXT = f"{BOLD}{RED}"
+    else:
+        TITLES = f"{BOLD}{CYAN}"
+        TEXT = f"{NORMAL}{WHITE}"
+        NUMS = f"{NORMAL}{BOLD}{WHITE}"
+        HELP_TXT = f"{NORMAL}{CYAN}"
+        EXIT_TXT = f"{BOLD}{CYAN}"
 
     print(f"\n{TITLES} Generate:{NORMAL}")
     print(f"{NUMS}    1){TEXT} Contribution stats (by author)")
