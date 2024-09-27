@@ -61,7 +61,14 @@ def suggest_reviewers(config: Dict[str, Union[str, int]]) -> None:
             return
 
         # Split the output into lines (each line is a commit author)
-        lines = output.splitlines()
+        # and sanitize the string
+        lines = [line.strip() for line in output.splitlines()]
+        lines = [line for line in lines if line]
+
+        # Return early if nothing found
+        if not lines:
+            print("No potential reviewers found.")
+            return
 
         # Mimic "head -n 100"
         head_lines = lines[:100]
