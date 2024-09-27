@@ -16,6 +16,9 @@ def run_git_command(cmd: List[str]) -> Optional[str]:
     Returns:
         The standard output from the git command if successful, None otherwise.
     """
+    if not cmd:
+        print("Error: Command list is empty!")
+        return None
     try:
         result = subprocess.run(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True
@@ -23,6 +26,10 @@ def run_git_command(cmd: List[str]) -> Optional[str]:
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         print(f"Error running command: {e}")
+        return None
+    # Grab any other possible exception
+    except Exception as e:
+        print(f"Unexpected error running command: {e}")
         return None
 
 

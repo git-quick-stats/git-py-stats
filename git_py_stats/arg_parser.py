@@ -9,7 +9,6 @@ Provides CLI parsing for Git Py Stats.
 from argparse import ArgumentParser, Namespace
 from typing import List, Optional
 
-
 def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
     """
     Parse command-line arguments and return them.
@@ -24,9 +23,10 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         args = parse_arguments(['--detailed-git-stats'])
         print(args.detailed_git_stats)  # True
     """
-
+    
     parser = ArgumentParser(
-        description="Git Py Stats - A Python Implementation of Git Quick Stats."
+        description="Git Py Stats - A Python Implementation of Git Quick Stats.",
+        allow_abbrev=False, # Force users to be explicit. Makes testing sane.
     )
 
     # Generate Options
@@ -40,6 +40,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         "-R",
         "--git-stats-by-branch",
         metavar="BRANCH",
+        type=str,
         help="See detailed list of git stats by branch",
     )
     parser.add_argument(
@@ -52,6 +53,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         "-L",
         "--changelogs-by-author",
         metavar='"AUTHOR NAME"',
+        type=str,
         help="See changelogs by author",
     )
     parser.add_argument(
@@ -96,6 +98,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         "-n",
         "--new-contributors",
         metavar="DATE",
+        type=str,
         help="List everyone who made their first contribution since a specified date",
     )
     parser.add_argument(
@@ -132,6 +135,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         "-W",
         "--commits-by-author-by-weekday",
         metavar='"AUTHOR NAME"',
+        type=str,
         help="Displays a list of commits per weekday by author",
     )
     parser.add_argument(
@@ -144,6 +148,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         "-A",
         "--commits-by-author-by-hour",
         metavar='"AUTHOR NAME"',
+        type=str,
         help="Displays a list of commits per hour by author",
     )
     parser.add_argument(
@@ -156,6 +161,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         "-Z",
         "--commits-by-author-by-timezone",
         metavar='"AUTHOR NAME"',
+        type=str,
         help="Displays a list of commits per timezone by author",
     )
 
@@ -169,4 +175,4 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
 
     # Help option inherited from argparse by default, no need to impl them.
 
-    return parser.parse_args()
+    return parser.parse_args(argv)
