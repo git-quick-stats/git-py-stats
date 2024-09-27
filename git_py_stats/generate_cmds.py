@@ -231,7 +231,7 @@ def changelogs(
     until = config.get("until", "")
     log_options = config.get("log_options", "")
     pathspec = config.get("pathspec", "")
-    limit = config.get("limit", "10")
+    limit = int(config.get("limit", 10))
 
     # Original git command:
     # git -c log.showSignature=false log --use-mailmap $_merges --format="%cd" --date=short "${_author}"
@@ -327,7 +327,6 @@ def my_daily_status(config: Dict[str, Union[str, int]]) -> None:
     Returns:
         None
     """
-
     # Grab the config options from our config.py.
     # config.py should give fallbacks for these, but for sanity,
     # lets also provide some defaults just in case.
@@ -335,7 +334,6 @@ def my_daily_status(config: Dict[str, Union[str, int]]) -> None:
     log_options = config.get("log_options", "")
 
     print("My daily status:")
-
     # Equivalent Bash Command:
     # git diff --shortstat '@{0 day ago}' | sort -nr | tr ',' '\n' \
     #     | LC_ALL=C awk '{ args[NR] = $0; } END { for (i = 1; i <= NR; ++i) \
@@ -343,12 +341,10 @@ def my_daily_status(config: Dict[str, Union[str, int]]) -> None:
 
     # Mimic 'git diff --shortstat "@{0 day ago}"'
     diff_cmd = ["git", "diff", "--shortstat", "@{0 day ago}"]
-
     diff_output = run_git_command(diff_cmd)
     if diff_output:
         # Replace commas with newlines
         diff_lines = [line.strip() for line in diff_output.split(",")]
-
         # Print each line prefixed with a tab
         for line in diff_lines:
             print(f"\t{line}")
@@ -366,6 +362,7 @@ def my_daily_status(config: Dict[str, Union[str, int]]) -> None:
 
     # Get the user's name
     # Lets also handle the case if the user's name is not set correctly
+
     git_user = run_git_command(["git", "config", "user.name"])
     if not git_user:
         git_user = "unknown"
@@ -374,7 +371,7 @@ def my_daily_status(config: Dict[str, Union[str, int]]) -> None:
     today = datetime.now().strftime("%Y-%m-%d")
     since = f"--since={today}T00:00:00"
     until = f"--until={today}T23:59:59"
-
+    
     # Build the final git log command
     log_cmd = [
         "git",
@@ -382,33 +379,29 @@ def my_daily_status(config: Dict[str, Union[str, int]]) -> None:
         "log.showSignature=false",
         "log",
         "--use-mailmap",
-        "--author",
-        git_user,
+        f"--author={git_user}",  # Ensure the 'f' prefix is present
         merges,
         since,
         until,
         "--reverse",
+        "--pretty=%H",  # Output only commit hashes
         log_options,
     ]
-
+    
     # Remove any empty space from the log_cmd
     log_cmd = [arg for arg in log_cmd if arg]
-
     # Execute the git log command
     log_output = run_git_command(log_cmd)
 
     # Bash version uses grep to count lines matching the hash pattern
-    # "commit [a-f0-9]{40}"
-    # We can use re to mimic this in Python
-    # TODO: Revisit this. We might be able to do --pretty=format:%H to avoid
-    #       having to use a regex to handle this portion. This could be
-    #       an improvement to feed back to the original project
+    # "commit [a-f0-9]{40}". But it's not necessary with %H.
+    # TODO: We are be able to do --pretty=format:%H to avoid
+    #       having to use a regex to handle this portion.
+    #       Feed back to the original project
     if log_output:
-        commit_pattern = re.compile(r"^commit [a-f0-9]{40}$", re.MULTILINE)
-        commit_count = len(commit_pattern.findall(log_output))
+        commit_count = len(log_output.strip().splitlines())
     else:
         commit_count = 0
-
     # Print the commit count, prefixed with a tab
     print(f"\t{commit_count} commits")
 
