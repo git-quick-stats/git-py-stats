@@ -1,4 +1,3 @@
-
 # Git Py Stats
 
 Git Py Stats is a Python-based fork inspired by [git-quick-stats](https://github.com/arzzen/git-quick-stats).
@@ -7,6 +6,31 @@ using Python 3, providing improved cross-platform compatibility
 and ease of maintenance.
 
 ![mainMenuScreenshot](https://github.com/user-attachments/assets/4c3f49d8-62a9-4208-a968-5270e36aa3b8)
+
+## Table of Contents
+
+- [Why Git Py Stats?](#why-git-py-stats)
+- [Features](#features)
+  - [Changes from Original](#changes-from-original)
+- [Requirements](#requirements)
+- [Installation](#installation)
+  - [From Source](#from-source)
+  - [Using `setup.py`](#using-setuppy)
+- [Usage](#usage)
+  - [Interactive Mode](#interactive-mode)
+  - [Non-Interactive Mode](#non-interactive-mode)
+- [Advanced Usage](#advanced-usage)
+  - [Git Log Since and Until](#git-log-since-and-until)
+  - [Git Log Limit](#git-log-limit)
+  - [Git Log Options](#git-log-options)
+  - [Git Pathspec](#git-pathspec)
+  - [Git Merge View Strategy](#git-merge-view-strategy)
+  - [Git Branch](#git-branch)
+  - [Color Themes](#color-themes)
+- [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
+- [License](#license)
+- [Author](#author)
 
 ## Why Git Py Stats?
 
@@ -35,7 +59,8 @@ are ever required.
 
 ## Features
 
-Git Py Stats aims to maintain feature parity with the original `git-quick-stats`:
+Git Py Stats aims to maintain feature parity with `git-quick-stats` with
+features such as:
 
 - Contribution stats by author
 - Git changelogs and stats by branch or author
@@ -46,58 +71,12 @@ Git Py Stats aims to maintain feature parity with the original `git-quick-stats`
 
 and more in both interactive and non-interactive modes.
 
-## Feature Comparison
+### Changes from Original
 
-The following is a list of features that compares `git-py-stats` development
-with the capabilities `git-quick-stats` currently has. Completed means there
-exists essentially 1:1 functionality between the two projects. Stubbed means
-`git-py-stats` has the feature available, but it might not match the original
-project's version. Not Yet Implemented means it does not exist yet:
-
-| Feature                                         | Status                 | Description                                             |
-|-------------------------------------------------|------------------------|---------------------------------------------------------|
-| **UI**                                          | Completed ✔️            | General UI when launching interactive mode              |
-| **Interactive Mode**                            | Completed ✔️            | Enables interactive sessions for user inputs.           |
-| **Non-interactive Mode**                        | Completed ✔️            | Allows usage without interactive prompts.               |
-| **Contribution Stats**                          | Completed ✔️            | Displays overall contribution statistics.               |
-| **Contribution Stats by Author**                | Completed ✔️            | Shows contribution stats by individual authors.         |
-| **Changelogs**                                  | Completed ✔️            | Lists commit logs over 10 last days of commits.         |
-| **Changelogs by Author**                        | Completed ✔️            | Filters changelogs based on the author.                 |
-| **Code Reviewers**                              | Completed ✔️            | Identifies code reviewers based on contribution.        |
-| **My Daily Stats**                              | Completed ✔️            | Tracks daily statistics customized for the user.        |
-| **Output Daily Stats by Branch in CSV**         | Completed ✔️            | Exports daily branch stats in CSV format.               |
-| **Save Git Log Output in JSON Format**          | Completed ✔️            | Stores git logs in JSON.                                |
-| **Branch Tree View**                            | Completed ✔️            | Visual representation of the branch hierarchy.          |
-| **All Branches (Sorted by Most Recent Commit)** | Completed ✔️            | Lists all branches ordered by latest commit date.       |
-| **All Contributors (Sorted by Name)**           | Completed ✔️            | Displays all contributors sorted alphabetically.        |
-| **New Contributors (Sorted by Email)**          | Completed ✔️            | Lists new contributors sorted by their email addresses. |
-| **Git Commits per Author**                      | Completed ✔️            | Counts commits made by each author.                     |
-| **Git Commits per Date**                        | Completed ✔️            | Counts commits based on the date.                       |
-| **Git Commits per Month**                       | Completed ✔️            | Counts commits based on the monthly.                    |
-| **Git Commits per Year**                        | Completed ✔️            | Counts commits based on the year.                       |
-| **Git Commits per Weekday**                     | Completed ✔️            | Counts commits based on the weekday.                    |
-| **Git Commits per Weekday by Author**           | Completed ✔️            | Shows weekday commit counts by given author.            |
-| **Git Commits per Hour**                        | Completed ✔️            | Counts commits based on the hour.                       |
-| **Git Commits per Hour by Author**              | Completed ✔️            | Shows hourly commit count hour by given author.         |
-| **Git Commits per Timezone**                    | Completed ✔️            | Counts commits based on timezones.                      |
-| **Git Commits per Timezone by Author**          | Completed ✔️            | Shows timezone-based commit counts by given author.     |
-| **Since Variable Adjustable by User**           | Completed ✔️            | Allows users to set the starting point for commit logs. |
-| **Until Variable Adjustable by User**           | Completed ✔️            | Enables users to define the end point for commit logs.  |
-| **Pathspec Variable Adjustable by User**        | Completed ✔️            | Filters commits based on specified path patterns.       |
-| **Merge View Variable Adjustable by User**      | Completed ✔️            | Controls the inclusion of merge commits in views.       |
-| **Limit Variable Adjustable by User**           | Completed ✔️            | Sets the maximum number of commits to display.          |
-| **Log Options Variable Adjustable by User**     | Completed ✔️            | Customizes git log command options.                     |
-| **Legacy Theme**                                | Completed ✔️            | Restores the previous visual theme of the application.  |
-| **Linux Package Install**                       | Not Yet Implemented ❌ | Allows Linux users to install via a package manager.    |
-| **macOS Package install**                       | Not Yet Implemented ❌ | Allows macOS users to install via brew.                 |
-| **Docker Development Image**                    | Completed ✔️            | Provides a Docker development image for CI/CD.          |
-
-## Changes from Original
-
-While this project aims to be feature-complete and 1:1 with the `git-quick-stats`,
-there may be instances where this version differs from the base project by design.
-The following is a list of differences that this project will maintain compared to
-the parent project:
+While this project aims to be feature-complete and 1:1 with `git-quick-stats`,
+there may be instances where this version differs from the base project.
+The following is a list of differences that this project will maintain compared
+to the parent project:
 
 - Author, dates, and branch names can be passed via cmdline without interaction
   by the user. This means you can now do `git-py-stats -L "John Doe"` instead
@@ -113,14 +92,18 @@ the parent project:
 
 ## Requirements
 
-- **Python 3.6+**: Git Py Stats requires Python 3.6 or higher installed on your system.
+- **Python 3.8+**:
+  Git Py Stats requires Python 3.8 or higher installed on your system.
+  While it may work with older versions, there is no guarantee as it is
+  currently untested with versions below 3.8.
   You can check your Python version with:
 
     ```bash
     python3 --version
     ```
 
-- **Git**: Git should be installed and available in your system's PATH.
+- **Git**:
+  Git should be installed and available in your system's `PATH`.
 
 ## Installation
 
@@ -220,13 +203,13 @@ For a full list of available options, run:
 git-py-stats --help
 ```
 
-### Advanced Usage
+## Advanced Usage
 
 It is possible for `git-py-stats` to read shell environment variables just like
 `git-quick-stats` does. As it aims to maintain 1:1 compatibility, all of the
 same arguments work the same as the parent project.
 
-#### Git log since and until
+### Git Log Since and Until
 
 You can set the variables `_GIT_SINCE` and/or `_GIT_UNTIL` before running
 `git-py-stats` to limit the git log.
@@ -240,7 +223,7 @@ export _GIT_UNTIL="2017-01-22"
 Once set, run `git-py-stats` as normal. Note that this affects all stats that
 parse the git log history until unset.
 
-#### Git log limit
+### Git Log Limit
 
 You can set variable `_GIT_LIMIT` for limited output.
 It will affect the "changelogs" and "branch tree" options.
@@ -250,7 +233,7 @@ The default limit is `10`.
 export _GIT_LIMIT=20
 ```
 
-#### Git log options
+### Git Log Options
 
 You can set `_GIT_LOG_OPTIONS` for
 [git log options](https://git-scm.com/docs/git-log#_options):
@@ -259,7 +242,7 @@ You can set `_GIT_LOG_OPTIONS` for
 export _GIT_LOG_OPTIONS="--ignore-all-space --ignore-blank-lines"
 ```
 
-#### Git pathspec
+### Git Pathspec
 
 You can exclude a directory from the stats by using
 [pathspec](https://git-scm.com/docs/gitglossary#gitglossary-aiddefpathspecapathspec).
@@ -275,7 +258,7 @@ Note that it works with any alphanumeric, glob, or regex that git respects.
 export _GIT_PATHSPEC=':!package-lock.json'
 ```
 
-#### Git merge view strategy
+### Git Merge View Strategy
 
 You can set the variable `_GIT_MERGE_VIEW` to enable merge commits to be part
 of the stats by setting `_GIT_MERGE_VIEW` to `enable`. You can also choose to
@@ -288,7 +271,7 @@ export _GIT_MERGE_VIEW="enable"
 export _GIT_MERGE_VIEW="exclusive"
 ```
 
-#### Git branch
+### Git Branch
 
 You can set the variable `_GIT_BRANCH` to set the branch of the stats.
 Works with commands `--git-stats-by-branch` and `--csv-output-by-branch`.
@@ -297,7 +280,7 @@ Works with commands `--git-stats-by-branch` and `--csv-output-by-branch`.
 export _GIT_BRANCH="master"
 ```
 
-#### Color themes
+### Color Themes
 
 You can change to the legacy color scheme by toggling the variable
 `_MENU_THEME` between `default` and `legacy`
@@ -306,89 +289,15 @@ You can change to the legacy color scheme by toggling the variable
 export _MENU_THEME="legacy"
 ```
 
-## Development
+## Contributing
 
-This section is currently under development and is changing rapidly as we work
-on getting features added. The current structure is as follows:
+We welcome contributions of all kinds! Please read our
+[CONTRIBUTING.md](CONTRIBUTING.md) guide to learn how to get involved.
 
-- **`git_py_stats/`**: Core package
-- **`git_py_stats/tests/`**: Test cases for the various modules
+## Code of Conduct
 
-### Code Formatting
-
-This project uses [Black](https://black.readthedocs.io/en/stable/) for code formatting.
-To ensure consistency, please try to autoformat your code with one of the various
-cool autoformatters out there before submitting a PR.
-
-Here is how to format all Python code with Black before submitting changes:
-
-```bash
-pip install black
-cd git-py-stats
-black .
-```
-
-- For more information about Black, refer to the [official documentation](https://black.readthedocs.io/en/stable/).
-
-### Testing
-
-This project uses Python's built-in `unittest` framework for testing.
-
-#### Running Tests
-
-1. **Navigate to the Project Directory**:
-
-    ```bash
-    cd git-py-stats
-    ```
-
-2. **Run All Tests**:
-
-    You can run all tests using the `unittest` discovery mode, which will
-    automatically find and execute all test files named `test_*.py`
-    within the `git_py_stats/tests/` directory:
-
-    ```bash
-    python3 -m unittest discover -s git_py_stats/tests
-    ```
-
-3. **Run a Specific Test File**:
-
-    To run a specific test file, you can use:
-
-    ```bash
-    python3 -m unittest git_py_stats.tests.test_generate_cmds
-    ```
-
-#### Additional Tips
-
-- Ensure that all test files follow the naming convention `test_*.py`.
-- To view more detailed output, use the `-v` (verbose) flag:
-
-    ```bash
-    python3 -m unittest discover -s git_py_stats/tests -v
-    ```
-
-- To run all tests automatically and display a summary of results:
-
-    ```bash
-    python3 -m unittest discover -s git_py_stats/tests
-    ```
-
-## Contribution
-
-Contributions are welcome! If you encounter a bug or have a feature request,
-please [open an issue](https://github.com/tomice/git-py-stats/issues).
-
-To contribute:
-
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Make your changes and commit them (`git commit -m 'Add some feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Open a pull request.
-
-Please try to adhere to [PEP 8](https://peps.python.org/pep-0008/).
+To ensure a positive and inclusive community, please follow our
+[Code of Conduct](CODE_OF_CONDUCT.md) during your interactions.
 
 ## License
 
