@@ -646,15 +646,26 @@ def git_commits_per_year(config: Dict[str, Union[str, int]]) -> None:
     output = run_git_command(cmd)
     if output:
         print("Git commits by year:\n")
-        # Split the output into individual years
-        years = output.split("\n")
-        counter = collections.Counter(years)
 
-        # Determine the range of years
-        # TODO: This will need to be adjustable later
+        # Split the output into individual years
+        # Handle cases in case there are no commits found
+        years = output.split("\n")
+        years = [year for year in years if year.strip()]
+        if not years:
+            print("No valid years found in commits.")
+            return
+
+        # Count the frequency of each year
+        # Handle cases in case years weren't valid
+        counter = collections.Counter(years)
         all_years = sorted(counter.keys())
-        start_year = int(all_years[0])
-        end_year = int(all_years[-1])
+        try:
+            start_year = int(all_years[0])
+            end_year = int(all_years[-1])
+        except (ValueError, IndexError):
+            # In case the conversion fails
+            print("No valid years found in commits.")
+            return
 
         # Initialize commit counts for all years in range
         commit_counts = {year: 0 for year in range(start_year, end_year + 1)}
