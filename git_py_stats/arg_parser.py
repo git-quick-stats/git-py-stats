@@ -9,6 +9,7 @@ Provides CLI parsing for Git Py Stats.
 from argparse import ArgumentParser, Namespace
 from typing import List, Optional
 
+
 def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
     """
     Parse command-line arguments and return them.
@@ -23,10 +24,10 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         args = parse_arguments(['--detailed-git-stats'])
         print(args.detailed_git_stats)  # True
     """
-    
+
     parser = ArgumentParser(
         description="Git Py Stats - A Python Implementation of Git Quick Stats.",
-        allow_abbrev=False, # Force users to be explicit. Makes testing sane.
+        allow_abbrev=False,  # Force users to be explicit. Makes testing sane.
     )
 
     # Generate Options

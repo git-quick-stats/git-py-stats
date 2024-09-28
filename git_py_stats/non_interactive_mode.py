@@ -8,10 +8,7 @@ from typing import Dict, Union
 from git_py_stats import generate_cmds, list_cmds, suggest_cmds
 
 
-def handle_non_interactive_mode(
-    args: Namespace,
-    config: Dict[str, Union[str, int]]
-) -> None:
+def handle_non_interactive_mode(args: Namespace, config: Dict[str, Union[str, int]]) -> None:
     """
     Handle the non-interactive mode based on command-line arguments.
 
@@ -28,18 +25,14 @@ def handle_non_interactive_mode(
             config, args.git_stats_by_branch
         ),
         "changelogs": lambda: generate_cmds.changelogs(config),
-        "changelogs_by_author": lambda: generate_cmds.changelogs(
-            config, args.changelogs_by_author
-        ),
+        "changelogs_by_author": lambda: generate_cmds.changelogs(config, args.changelogs_by_author),
         "my_daily_stats": lambda: generate_cmds.my_daily_status(config),
         "csv_output_by_branch": lambda: generate_cmds.output_daily_stats_csv(config),
         "json_output": lambda: generate_cmds.save_git_log_output_json(config),
         "branch_tree": lambda: list_cmds.branch_tree(config),
         "branches_by_date": list_cmds.branches_by_date,
         "contributors": lambda: list_cmds.contributors(config),
-        "new_contributors": lambda: list_cmds.new_contributors(
-            config, args.new_contributors
-        ),
+        "new_contributors": lambda: list_cmds.new_contributors(config, args.new_contributors),
         "commits_per_author": lambda: list_cmds.git_commits_per_author(config),
         "commits_per_day": lambda: list_cmds.git_commits_per_date(config),
         "commits_by_year": lambda: list_cmds.git_commits_per_year(config),
@@ -67,7 +60,5 @@ def handle_non_interactive_mode(
 
     # Invalid options handling
     print("Invalid option provided.\n")
-    parser = ArgumentParser(
-        description="Git Py Stats", formatter_class=RawTextHelpFormatter
-    )
+    parser = ArgumentParser(description="Git Py Stats", formatter_class=RawTextHelpFormatter)
     parser.print_help()

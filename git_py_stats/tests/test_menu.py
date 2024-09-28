@@ -12,8 +12,8 @@ def strip_ansi_codes(text):
     capturing sys.stdout would capture the string with the raw ANSI
     along with it, causing our assertions to fail.
     """
-    ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-    return ansi_escape.sub('', text)
+    ansi_escape = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+    return ansi_escape.sub("", text)
 
 
 class TestInteractiveMenu(unittest.TestCase):
@@ -192,4 +192,3 @@ class TestInteractiveMenu(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -1,6 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock, mock_open
-from datetime import datetime
+from unittest.mock import patch, mock_open
 import json
 
 from git_py_stats import generate_cmds
@@ -155,9 +154,7 @@ class TestGenerateCmds(unittest.TestCase):
         """
         Test output_daily_stats_csv function with sample git output.
         """
-        mock_run_git_command.return_value = (
-            "2021-01-01\n2021-01-01\n2021-01-02\n2021-01-03\n"
-        )
+        mock_run_git_command.return_value = "2021-01-01\n2021-01-01\n2021-01-02\n2021-01-03\n"
 
         # Mock open to prevent actual file creation
         with patch("builtins.open", mock_open()) as mocked_file:
@@ -173,9 +170,7 @@ class TestGenerateCmds(unittest.TestCase):
     @patch("git_py_stats.generate_cmds.run_git_command")
     @patch("builtins.input", return_value="")
     @patch("builtins.print")
-    def test_output_daily_stats_csv_no_data(
-        self, mock_print, mock_input, mock_run_git_command
-    ):
+    def test_output_daily_stats_csv_no_data(self, mock_print, mock_input, mock_run_git_command):
         """
         Test output_daily_stats_csv when git command returns no data.
         """
@@ -229,9 +224,7 @@ class TestGenerateCmds(unittest.TestCase):
 
     @patch("git_py_stats.generate_cmds.run_git_command")
     @patch("builtins.print")
-    def test_detailed_git_stats_handles_invalid_lines(
-        self, mock_print, mock_run_git_command
-    ):
+    def test_detailed_git_stats_handles_invalid_lines(self, mock_print, mock_run_git_command):
         """
         Test detailed_git_stats with invalid lines in git output.
         """
@@ -264,14 +257,12 @@ class TestGenerateCmds(unittest.TestCase):
 
         # Check that '--author=unknown' is used in the git log command
         log_cmd = mock_run_git_command.call_args_list[2][0][0]
-        self.assertIn(f"--author=unknown", log_cmd)
+        self.assertIn("--author=unknown", log_cmd)
 
     @patch("git_py_stats.generate_cmds.run_git_command")
     @patch("builtins.input", return_value="")
     @patch("builtins.print")
-    def test_output_daily_stats_csv_io_error(
-        self, mock_print, mock_input, mock_run_git_command
-    ):
+    def test_output_daily_stats_csv_io_error(self, mock_print, mock_input, mock_run_git_command):
         """
         Test output_daily_stats_csv when an IOError occurs during file writing.
         """
@@ -284,9 +275,7 @@ class TestGenerateCmds(unittest.TestCase):
 
     @patch("git_py_stats.generate_cmds.run_git_command")
     @patch("builtins.print")
-    def test_save_git_log_output_json_io_error(
-        self, mock_print, mock_run_git_command
-    ):
+    def test_save_git_log_output_json_io_error(self, mock_print, mock_run_git_command):
         """
         Test save_git_log_output_json when an IOError occurs during file writing.
         """
@@ -302,4 +291,3 @@ class TestGenerateCmds(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

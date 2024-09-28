@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from git_py_stats import suggest_cmds
 
@@ -29,12 +29,6 @@ class TestSuggestCmds(unittest.TestCase):
         mock_run_git_command.return_value = "Alice\nBob\nAlice\nCharlie\nBob\nBob\n"
 
         # Expected output after processing
-        expected_output = [
-            "Suggested code reviewers based on git history:",
-            "      3 Bob",
-            "      2 Alice",
-            "      1 Charlie",
-        ]
 
         suggest_cmds.suggest_reviewers(self.mock_config)
 
@@ -215,4 +209,3 @@ class TestSuggestCmds(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

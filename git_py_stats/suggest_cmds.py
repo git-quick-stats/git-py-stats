@@ -3,7 +3,6 @@ Performs all commands in the Suggest section of the program.
 """
 
 import subprocess
-from collections import defaultdict
 from typing import Dict, Union
 
 from git_py_stats.git_operations import run_git_command

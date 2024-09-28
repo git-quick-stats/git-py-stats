@@ -65,9 +65,7 @@ def interactive_menu(config: Dict[str, Union[str, int]]) -> str:
     print(f"{NUMS}   21){TEXT} Git commits per timezone by author")
     print(f"\n{TITLES} Suggest:{NORMAL}")
     print(f"{NUMS}   22){TEXT} Code reviewers (based on git history)")
-    print(
-        f"\n{HELP_TXT}Please enter a menu option or {EXIT_TXT}press Enter to exit.{NORMAL}"
-    )
+    print(f"\n{HELP_TXT}Please enter a menu option or {EXIT_TXT}press Enter to exit.{NORMAL}")
 
     choice = input(f"{TEXT}> {NORMAL}")
 

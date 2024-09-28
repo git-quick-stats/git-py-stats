@@ -5,8 +5,6 @@ Functions related to the 'Generate' section.
 import collections
 import csv
 import json
-import os
-import re
 from typing import Optional, Dict, Any, List, Union
 from datetime import datetime, timedelta
 
@@ -14,10 +12,7 @@ from git_py_stats.git_operations import run_git_command
 
 
 # TODO: We should really refactor this; It's huge
-def detailed_git_stats(
-    config: Dict[str, Union[str, int]],
-    branch: Optional[str] = None
-) -> None:
+def detailed_git_stats(config: Dict[str, Union[str, int]], branch: Optional[str] = None) -> None:
     """
     Displays detailed contribution stats by author.
 
@@ -38,7 +33,6 @@ def detailed_git_stats(
 
     # Variables to track current commit metadata
     current_author = ""
-    current_email = ""
     current_date = 0
 
     # Grab the config options from our config.py.
@@ -100,7 +94,6 @@ def detailed_git_stats(
             # Commit metadata
             commit_hash, author_name, author_email, date_raw = parts
             current_author = author_name
-            current_email = author_email
             current_date = int(date_raw.split()[0])
 
             # Initialize stats for the current author if not already done
@@ -175,9 +168,7 @@ def detailed_git_stats(
         )
 
         # Calculate percentages
-        insertions_pct = (
-            (insertions / total_insertions * 100) if total_insertions else 0
-        )
+        insertions_pct = (insertions / total_insertions * 100) if total_insertions else 0
         deletions_pct = (deletions / total_deletions * 100) if total_deletions else 0
         files_pct = (files / total_files_changed * 100) if total_files_changed else 0
         commits_pct = (commits / total_commits * 100) if total_commits else 0
@@ -195,17 +186,14 @@ def detailed_git_stats(
         print(f"          last commit:   {last_commit}\n")
 
     # Perform final calculation of stats
-    print(f"         total:")
+    print("         total:")
     print(f"           insertions:    {total_insertions:<6} (100%)")
     print(f"           deletions:     {total_deletions:<6} (100%)")
     print(f"           files:         {total_files_changed:<6} (100%)")
     print(f"           commits:       {total_commits:<6} (100%)\n")
 
 
-def changelogs(
-    config: Dict[str, Union[str, int]],
-    author: Optional[str] = None
-) -> None:
+def changelogs(config: Dict[str, Union[str, int]], author: Optional[str] = None) -> None:
     """
     Shows commit messages grouped by date for the last 'limit' dates
     where commits occurred.
@@ -234,8 +222,8 @@ def changelogs(
     limit = int(config.get("limit", 10))
 
     # Original git command:
-    # git -c log.showSignature=false log --use-mailmap $_merges --format="%cd" --date=short "${_author}"
-    #     "$_since" "$_until" $_log_options $_pathspec
+    # git -c log.showSignature=false log --use-mailmap $_merges --format="%cd"
+    #     --date=short "${_author}" "$_since" "$_until" $_log_options $_pathspec
     cmd = [
         "git",
         "-c",
@@ -371,7 +359,7 @@ def my_daily_status(config: Dict[str, Union[str, int]]) -> None:
     today = datetime.now().strftime("%Y-%m-%d")
     since = f"--since={today}T00:00:00"
     until = f"--until={today}T23:59:59"
-    
+
     # Build the final git log command
     log_cmd = [
         "git",
@@ -387,7 +375,7 @@ def my_daily_status(config: Dict[str, Union[str, int]]) -> None:
         "--pretty=%H",  # Output only commit hashes
         log_options,
     ]
-    
+
     # Remove any empty space from the log_cmd
     log_cmd = [arg for arg in log_cmd if arg]
     # Execute the git log command

@@ -4,7 +4,7 @@ Functions related to the 'List' section.
 
 import collections
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Dict, Union, Optional
 
 from git_py_stats.git_operations import run_git_command
@@ -13,7 +13,7 @@ from git_py_stats.git_operations import run_git_command
 def branch_tree(config: Dict[str, Union[str, int]]) -> None:
     """
     Displays a visual graph of recent commits across all branches.
-    
+
     Args:
         config: Dict[str, Union[str, int]]: Config dictionary holding env vars.
 
@@ -24,19 +24,22 @@ def branch_tree(config: Dict[str, Union[str, int]]) -> None:
     # Grab the config options from our config.py.
     # config.py should give fallbacks for these, but for sanity, lets
     # also provide some defaults just in case.
-    merges = config.get("merges", "--no-merges")
     since = config.get("since", "")
     until = config.get("until", "")
     log_options = config.get("log_options", "")
     limit = config.get("limit", 10)
 
     # Format string for git --format so it gets interpreted correctly
-    format_str = "--format=--+ Commit:  %h%n  | Date:    %aD (%ar)%n  | Message: %s %d%n  + Author:  %aN %n"
+    format_str = (
+        "--format=--+ Commit:  %h%n  | Date:    %aD (%ar)%n  | "
+        "Message: %s %d%n  + Author:  %aN %n"
+    )
 
     # Original command:
     # git -c log.showSignature=false log --use-mailmap --graph --abbrev-commit \
     #     "$_since" "$_until" --decorate \
-    #      --format=format:'--+ Commit:  %h %n  | Date:    %aD (%ar) %n''  | Message: %s %d %n''  + Author:  %aN %n' \
+    #      --format=format:'--+ Commit:  %h %n  | Date:    %aD (%ar) %n''  \
+    #                       | Message: %s %d %n''  + Author:  %aN %n' \
     #      --all $_log_options | head -n $((_limit*5))
     cmd = [
         "git",
@@ -69,9 +72,9 @@ def branch_tree(config: Dict[str, Union[str, int]]) -> None:
         for line in limited_lines:
             print(f"{line}")
 
-        commit_count = sum(
-            1 for line in limited_lines if line.strip().startswith("--+ Commit:")
-        )
+        # commit_count = sum(
+        #    1 for line in limited_lines if line.strip().startswith("--+ Commit:")
+        # )
     else:
         print("No data available.")
 
@@ -175,19 +178,14 @@ def contributors(config: Dict[str, Union[str, int]]) -> None:
         limited_authors = sorted_authors[:limit]
 
         # Number the authors similar to 'cat -n' and print
-        numbered_authors = [
-            f"{idx + 1}  {author}" for idx, author in enumerate(limited_authors)
-        ]
+        numbered_authors = [f"{idx + 1}  {author}" for idx, author in enumerate(limited_authors)]
         for author in numbered_authors:
             print(f"\t{author}")
     else:
         print("No contributors found.")
 
 
-def new_contributors(
-    config: Dict[str, Union[str, int]],
-    new_date: str
-) -> None:
+def new_contributors(config: Dict[str, Union[str, int]], new_date: str) -> None:
     """
     Lists all new contributors to a repo since the specified date.
 
@@ -248,10 +246,7 @@ def new_contributors(
                 email, timestamp = line.split("|")
                 timestamp = int(timestamp)
                 # If the contributor is not in the dictionary or the current timestamp is earlier
-                if (
-                    email not in contributors_dict
-                    or timestamp < contributors_dict[email]
-                ):
+                if email not in contributors_dict or timestamp < contributors_dict[email]:
                     contributors_dict[email] = timestamp
             except ValueError:
                 continue  # Skip lines that don't match format
@@ -298,9 +293,7 @@ def new_contributors(
         # and print all of this out
         if new_contributors_list:
             print(f"New contributors since {new_date}:\n")
-            sorted_new_contributors = sorted(
-                new_contributors_list, key=lambda x: (x[0], x[1])
-            )
+            sorted_new_contributors = sorted(new_contributors_list, key=lambda x: (x[0], x[1]))
             for idx, (name, email) in enumerate(sorted_new_contributors, 1):
                 if name:
                     print(f"{name} <{email}>")
@@ -315,7 +308,7 @@ def new_contributors(
 def git_commits_per_author(config: Dict[str, Union[str, int]]) -> None:
     """
     Shows the number of commits per author.
-    
+
     Args:
         config: Dict[str, Union[str, int]]: Config dictionary holding env vars.
 
@@ -443,7 +436,7 @@ def extract_name(author_info: str) -> Optional[str]:
 def git_commits_per_date(config: Dict[str, Union[str, int]]) -> None:
     """
     Displays commits grouped by date.
-    
+
     Args:
         config: Dict[str, Union[str, int]]: Config dictionary holding env vars.
 
@@ -575,9 +568,6 @@ def git_commits_per_month(config: Dict[str, Union[str, int]]) -> None:
             if month in commit_counts:
                 commit_counts[month] += 1
 
-        # Calculate total commits
-        total_commits = sum(commit_counts.values())
-
         # Determine the maximum count to set the scaling factor
         max_count = max(commit_counts.values()) if commit_counts else 0
 
@@ -610,7 +600,7 @@ def git_commits_per_month(config: Dict[str, Union[str, int]]) -> None:
 def git_commits_per_year(config: Dict[str, Union[str, int]]) -> None:
     """
     Displays commits grouped by year.
-    
+
     Args:
         config: Dict[str, Union[str, int]]: Config dictionary holding env vars.
 
@@ -681,10 +671,6 @@ def git_commits_per_year(config: Dict[str, Union[str, int]]) -> None:
         max_count = max(commit_counts.values())
         scaling_factor = (max_bar_length / max_count) if max_count > 0 else 0
 
-        # Determine the width for alignment
-        year_width = len(str(end_year))
-        count_width = len(str(max_count))
-
         # Print the header row
         header_year = "Year"
         header_sum = "Sum"
@@ -706,8 +692,7 @@ def git_commits_per_year(config: Dict[str, Union[str, int]]) -> None:
 
 
 def git_commits_per_weekday(
-    config: Dict[str, Union[str, int]],
-    author: Optional[str] = None
+    config: Dict[str, Union[str, int]], author: Optional[str] = None
 ) -> None:
     """
     Shows commits grouped by weekday. If an author is provided, it shows
@@ -784,9 +769,6 @@ def git_commits_per_weekday(
         max_count = max(commit_counts.values())
         scaling_factor = (max_bar_length / max_count) if max_count > 0 else 0
 
-        # Determine the width for alignment based on max_count
-        count_width = len(str(max_count))
-
         # Print the header row
         header_day = "Day"
         header_sum = "Sum"
@@ -816,10 +798,7 @@ def git_commits_per_weekday(
             print("No commits found.")
 
 
-def git_commits_per_hour(
-    config: Dict[str, Union[str, int]],
-    author: Optional[str] = None
-) -> None:
+def git_commits_per_hour(config: Dict[str, Union[str, int]], author: Optional[str] = None) -> None:
     """
     Shows commits grouped by hour of the day. If an author is provided,
     it shows commits grouped by hour for that specific author.
@@ -896,9 +875,6 @@ def git_commits_per_hour(
         max_count = max(commit_counts.values())
         scaling_factor = (max_bar_length / max_count) if max_count > 0 else 0
 
-        # Determine the width for alignment based on max_count
-        count_width = len(str(max_count))
-
         # Print the header row
         header_hour = "Hour"
         header_sum = "Sum"
@@ -929,8 +905,7 @@ def git_commits_per_hour(
 
 
 def git_commits_per_timezone(
-    config: Dict[str, Union[str, int]],
-    author: Optional[str] = None
+    config: Dict[str, Union[str, int]], author: Optional[str] = None
 ) -> None:
     """
     Displays commits grouped by timezone. If an author is provided, it shows

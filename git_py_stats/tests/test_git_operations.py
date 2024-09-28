@@ -10,7 +10,7 @@ class TestGitOperations(unittest.TestCase):
     Unit test class for testing git_operations.
     """
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_run_git_command_success(self, mock_subprocess_run):
         """
         Test run_git_command with a successful git command.
@@ -30,10 +30,10 @@ class TestGitOperations(unittest.TestCase):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            check=True
+            check=True,
         )
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_run_git_command_failure(self, mock_subprocess_run):
         """
         Test run_git_command with a failing git command.
@@ -42,7 +42,7 @@ class TestGitOperations(unittest.TestCase):
         mock_subprocess_run.side_effect = subprocess.CalledProcessError(
             returncode=1,
             cmd=["git", "invalidcommand"],
-            stderr="git: 'invalidcommand' is not a git command."
+            stderr="git: 'invalidcommand' is not a git command.",
         )
 
         output = run_git_command(["git", "invalidcommand"])
@@ -53,10 +53,10 @@ class TestGitOperations(unittest.TestCase):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            check=True
+            check=True,
         )
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_run_git_command_no_output(self, mock_subprocess_run):
         """
         Test run_git_command with a command that produces no output.
@@ -72,14 +72,10 @@ class TestGitOperations(unittest.TestCase):
         self.assertEqual(output, "")
 
         mock_subprocess_run.assert_called_once_with(
-            ["git", "status"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            check=True
+            ["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True
         )
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_run_git_command_exception(self, mock_subprocess_run):
         """
         Test run_git_command when subprocess.run raises an exception.
@@ -91,11 +87,7 @@ class TestGitOperations(unittest.TestCase):
         self.assertIsNone(output)
 
         mock_subprocess_run.assert_called_once_with(
-            ["git", "status"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            check=True
+            ["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True
         )
 
     def test_run_git_command_empty_command(self):
@@ -105,7 +97,7 @@ class TestGitOperations(unittest.TestCase):
         output = run_git_command([])
         self.assertIsNone(output)
 
-    @patch('git_py_stats.git_operations.run_git_command')
+    @patch("git_py_stats.git_operations.run_git_command")
     def test_check_git_repository_true(self, mock_run_git_command):
         """
         Test check_git_repository when inside a git repository.
@@ -117,7 +109,7 @@ class TestGitOperations(unittest.TestCase):
 
         mock_run_git_command.assert_called_once_with(["git", "rev-parse", "--is-inside-work-tree"])
 
-    @patch('git_py_stats.git_operations.run_git_command')
+    @patch("git_py_stats.git_operations.run_git_command")
     def test_check_git_repository_false(self, mock_run_git_command):
         """
         Test check_git_repository when not inside a git repository.
@@ -129,7 +121,7 @@ class TestGitOperations(unittest.TestCase):
 
         mock_run_git_command.assert_called_once_with(["git", "rev-parse", "--is-inside-work-tree"])
 
-    @patch('git_py_stats.git_operations.run_git_command')
+    @patch("git_py_stats.git_operations.run_git_command")
     def test_check_git_repository_none(self, mock_run_git_command):
         """
         Test check_git_repository when run_git_command returns None.
@@ -141,7 +133,7 @@ class TestGitOperations(unittest.TestCase):
 
         mock_run_git_command.assert_called_once_with(["git", "rev-parse", "--is-inside-work-tree"])
 
-    @patch('git_py_stats.git_operations.run_git_command')
+    @patch("git_py_stats.git_operations.run_git_command")
     def test_check_git_repository_unexpected_output(self, mock_run_git_command):
         """
         Test check_git_repository with unexpected output from run_git_command.
@@ -153,19 +145,19 @@ class TestGitOperations(unittest.TestCase):
 
         mock_run_git_command.assert_called_once_with(["git", "rev-parse", "--is-inside-work-tree"])
 
-    @patch('git_py_stats.git_operations.run_git_command')
+    @patch("git_py_stats.git_operations.run_git_command")
     def test_check_git_repository_error_message(self, mock_run_git_command):
         """
         Test that check_git_repository prints error message when not in a git repo.
         """
         mock_run_git_command.return_value = "false"
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             result = check_git_repository()
             self.assertFalse(result)
             mock_print.assert_called_once_with("This script must be run inside a git repository.")
 
-    @patch('git_py_stats.git_operations.run_git_command')
+    @patch("git_py_stats.git_operations.run_git_command")
     def test_check_git_repository_no_output(self, mock_run_git_command):
         """
         Test check_git_repository when run_git_command returns empty string.
@@ -180,4 +172,3 @@ class TestGitOperations(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
