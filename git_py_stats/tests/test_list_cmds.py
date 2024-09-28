@@ -102,11 +102,54 @@ class TestListCmds(unittest.TestCase):
         """
         Test case for new_contributors function.
         """
-        mock_run_git_command.return_value = "author1@example.com|1577836800\n"
-        list_cmds.new_contributors(self.mock_config, "2020-01-01")
 
-        mock_print.assert_called()
-        mock_run_git_command.assert_called_once()
+        mock_run_git_command.side_effect = [
+            "author1@example.com|1577854800\n",  # First call output
+            "Author One",  # Second call output
+        ]
+
+        list_cmds.new_contributors(self.mock_config, "2020-01-01")
+        for call in mock_print.call_args_list:
+            print(call)
+
+        mock_print.assert_any_call("New contributors since 2020-01-01:\n")
+        mock_print.assert_any_call("Author One <author1@example.com>")
+
+        self.assertEqual(mock_run_git_command.call_count, 2)
+
+        # Verify the actual calls made to run_git_command.
+        first_call = call(
+            [
+                "git",
+                "-c",
+                "log.showSignature=false",
+                "log",
+                "--use-mailmap",
+                "--no-merges",
+                "--since=2020-01-01",
+                "--until=2024-12-31",
+                "--format=%aE|%at",
+                "--",
+            ]
+        )
+        second_call = call(
+            [
+                "git",
+                "-c",
+                "log.showSignature=false",
+                "log",
+                "--author=author1@example.com",
+                "--reverse",
+                "--use-mailmap",
+                "--since=2020-01-01",
+                "--until=2024-12-31",
+                "--format=%aN",
+                "--",
+                "-n",
+                "1",
+            ]
+        )
+        mock_run_git_command.assert_has_calls([first_call, second_call])
 
     @patch("git_py_stats.list_cmds.run_git_command")
     @patch("git_py_stats.list_cmds.print")
