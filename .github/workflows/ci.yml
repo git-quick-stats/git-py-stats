@@ -39,6 +39,5 @@ jobs:
 
     - name: Run tests
       run: |
-        cd git-py-stats
         python -m unittest discover -s git_py_stats/tests
 
