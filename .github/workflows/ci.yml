@@ -31,7 +31,7 @@ jobs:
 
     - name: Lint with Ruff
       run: |
-        ruff git_py_stats
+        ruff check git_py_stats
 
     - name: Check formatting with Black
       run: |
