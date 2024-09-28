@@ -3,6 +3,7 @@
 <div align="center">
   
 [![CI](https://github.com/tomice/git-py-stats/workflows/CI/badge.svg)](https://github.com/tomice/git-py-stats/actions)
+[![codecov](https://codecov.io/gh/tomice/git-py-stats/branch/main/graph/badge.svg)](https://codecov.io/gh/tomice/git-py-stats)
 [![Ruff](https://img.shields.io/badge/linting-Ruff-green?logo=ruff)](https://docs.astral.sh/ruff/)
 [![Black](https://img.shields.io/badge/code%20style-Black-000000.svg?logo=black)](https://black.readthedocs.io/en/stable/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)

@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install ruff black
+        pip install ruff black coverage codecov
 
     - name: Lint with Ruff
       run: |
@@ -37,7 +37,13 @@ jobs:
       run: |
         black --check git_py_stats
 
-    - name: Run tests
+    - name: Run tests with coverage
       run: |
-        python -m unittest discover -s git_py_stats/tests
+        coverage run -m unittest discover -s git_py_stats/tests
+        coverage xml
 
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: coverage.xml
