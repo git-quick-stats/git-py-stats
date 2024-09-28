@@ -71,6 +71,8 @@ Contributions are made via pull requests. Here's how to submit one:
    - Try to follow the [PEP 8](https://pep8.org/) style guide.
    - Add or update tests as necessary.
    - Update documentation if your changes require it.
+   - Run [Ruff](https://docs.astral.sh/ruff/)
+   - Run [Black](https://pypi.org/project/black/)
 
 5. **Commit Your Changes**
 
@@ -104,6 +106,8 @@ Contributions are made via pull requests. Here's how to submit one:
 - **Style Guide**:
   We use [Black](https://pypi.org/project/black/) for auto formatting code in
   the repo before it gets merged for style consistency.
+  We also use [Ruff](https://docs.astral.sh/ruff/) for linting in the repo
+  before it gets merged for improving code quality.
 - **Naming Conventions**:
   Use clear and descriptive names for variables, functions, and classes.
   When in doubt, always try to follow [PEP 8](https://pep8.org/).
@@ -112,6 +116,7 @@ Contributions are made via pull requests. Here's how to submit one:
   Also include type hints for functions, classes, and methods.
 
 While not strict, try to keep documentation around 80 columns per line.
+There is a hard limit of 100 columns per line of code currently.
 
 ## Testing
 
