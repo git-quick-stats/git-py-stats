@@ -1,5 +1,18 @@
 # Git Py Stats
 
+<div align="center">
+  
+[![CI](https://github.com/tomice/git-py-stats/workflows/CI/badge.svg)](https://github.com/tomice/git-py-stats/actions)
+[![Ruff](https://img.shields.io/badge/linting-Ruff-green?logo=ruff)](https://docs.astral.sh/ruff/)
+[![Black](https://img.shields.io/badge/code%20style-Black-000000.svg?logo=black)](https://black.readthedocs.io/en/stable/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/tomice/git-py-stats)](https://github.com/tomice/git-py-stats/issues)
+[![GitHub stars](https://img.shields.io/github/stars/tomice/git-py-stats?style=social)](https://github.com/tomice/git-py-stats/stargazers)
+[![Contributors](https://img.shields.io/github/contributors/tomice/git-py-stats)](https://github.com/tomice/git-py-stats/graphs/contributors)
+[![Python Versions](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
+
+</div>
+
 Git Py Stats is a Python-based fork inspired by [git-quick-stats](https://github.com/arzzen/git-quick-stats).
 It offers a similar set of git statistics and reports, but it's built entirely
 using Python 3, providing improved cross-platform compatibility
