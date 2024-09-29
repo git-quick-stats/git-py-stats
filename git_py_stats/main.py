@@ -26,8 +26,8 @@ def main() -> None:
 
     # Check if we are inside a Git repository
     if not check_git_repository():
-        print("This is not a Git repository.")
-        print("Please navigate to a Git repository and try again.")
+        print("This is not a git repository.")
+        print("Please navigate to a git repository and try again.")
         sys.exit(1)
 
     # Get env config

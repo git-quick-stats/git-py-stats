@@ -1,7 +1,8 @@
 include LICENSE
 include README.md
 include TODO.md
-recursive-include git_py_stats *
+recursive-include git_py_stats *.py
 recursive-include man *
 global-exclude *.pyc __pycache__/
+prune git_py_stats/tests
 

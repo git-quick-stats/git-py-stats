@@ -113,8 +113,11 @@ to the parent project:
   You can check your Python version with:
 
     ```bash
-    python3 --version
+    python --version
     ```
+
+  If your `python` is symlinked to Python 2, you can use
+  [`pyenv`](https://github.com/pyenv/pyenv) to switch between Python versions.
 
 - **Git**:
   Git should be installed and available in your system's `PATH`.
@@ -132,11 +135,11 @@ to the parent project:
 
 2. **Install the Package**:
 
-    You can install the package locally in editable mode.
+    You can install the package directly from PyPI.
     This allows you to run `git-py-stats` from anywhere on your system.
 
     ```bash
-    pip install -e .
+    pip install git-py-stats
     ```
 
     Or you can run it locally without `pip` by doing the following
@@ -158,7 +161,7 @@ to the parent project:
     to be done in the following manner:
 
     ```bash
-    python3 -m git_py_stats.main --help
+    python -m git_py_stats.main --help
     ```
 
 ### Using `setup.py`
@@ -168,7 +171,7 @@ If you prefer using `setup.py` directly:
 1. **Install the Package**:
 
     ```bash
-    python3 setup.py install
+    python setup.py install
     ```
 
 2. **Verify the Installation**:
@@ -306,17 +309,20 @@ export _MENU_THEME="legacy"
 ## Contributing
 
 We welcome contributions of all kinds! Please read our
-[CONTRIBUTING.md](CONTRIBUTING.md) guide to learn how to get involved.
+[CONTRIBUTING.md](https://github.com/tomice/git-py-stats/blob/main/CONTRIBUTING.md)
+guide to learn how to get involved.
 
 ## Code of Conduct
 
 To ensure a positive and inclusive community, please follow our
-[Code of Conduct](CODE_OF_CONDUCT.md) during your interactions.
+[Code of Conduct](https://github.com/tomice/git-py-stats/blob/main/CODE_OF_CONDUCT.md)
+during your interactions.
 
 ## License
 
 This project is licensed under the MIT License.
-See the [LICENSE](LICENSE) file for more details.
+See the [LICENSE](https://github.com/tomice/git-py-stats/blob/main/LICENSE)
+file for more details.
 
 ## Author
 
