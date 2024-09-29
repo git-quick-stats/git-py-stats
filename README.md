@@ -28,8 +28,9 @@ and ease of maintenance.
   - [Changes from Original](#changes-from-original)
 - [Requirements](#requirements)
 - [Installation](#installation)
-  - [From Source](#from-source)
+  - [Using PyPI](#using-pypi)
   - [Using `setup.py`](#using-setuppy)
+  - [From Source](#from-source)
 - [Usage](#usage)
   - [Interactive Mode](#interactive-mode)
   - [Non-Interactive Mode](#non-interactive-mode)
@@ -124,7 +125,23 @@ to the parent project:
 
 ## Installation
 
-### From Source
+### Using PyPI
+
+1. **Install Using pip**:
+
+    ```bash
+    pip install git-py-stats
+    ```
+
+    That's it! You can now use `git-py-stats` anywhere on your system
+    while inside of a git repo!
+
+    If you experience conflicts with other packages,
+    try using [`venv`](https://docs.python.org/3/library/venv.html)
+
+### Using `setup.py`
+
+If you prefer using `setup.py` directly:
 
 1. **Clone the Repository**:
 
@@ -135,50 +152,43 @@ to the parent project:
 
 2. **Install the Package**:
 
-    You can install the package directly from PyPI.
-    This allows you to run `git-py-stats` from anywhere on your system.
-
     ```bash
-    pip install git-py-stats
+    python setup.py install
     ```
 
-    Or you can run it locally without `pip` by doing the following
-    while inside the `git-py-stats` repo from Step 1:
+    That's it! You can now use `git-py-stats` anywhere on your system
+    while inside of a git repo! If you don't have admin permissions,
+    you can use the `--user` flag at the end of the command to install
+    this locally.
+
+### From Source
+
+1. **Clone the Repository**:
+
+    ```bash
+    git clone https://github.com/tomice/git-py-stats.git
+    cd git-py-stats
+    ```
+
+2. **Set PYTHONPATH**:
+
+    Set the root of `git-py-stats` to be prefixed to your `PYTHONPATH`:
 
     ```bash
     export PYTHONPATH=$(pwd):$PYTHONPATH
     ```
 
-3. **Verify the Installation**:
-
-    While inside of a valid git repo, type the following:
-
-    ```bash
-    git-py-stats --help
-    ```
-
-    If you decided to use the `PYTHONPATH` method, commands will need
-    to be done in the following manner:
+    That's it! You can now use `git-py-stats` anywhere on your system
+    while inside of a git repo, albeit with a slight modification.
+    Commands will need to be done in the following manner:
 
     ```bash
     python -m git_py_stats.main --help
     ```
 
-### Using `setup.py`
-
-If you prefer using `setup.py` directly:
-
-1. **Install the Package**:
-
-    ```bash
-    python setup.py install
-    ```
-
-2. **Verify the Installation**:
-
-    ```bash
-    git-py-stats --help
-    ```
+    This will tell Python to run the `git_py_stats.main` module directly.
+    This method is usually best for devs who want to help contribute to the
+    project without going through the install process a normal end user would.
 
 ## Usage
 
