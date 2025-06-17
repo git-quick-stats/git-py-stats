@@ -24,7 +24,7 @@ def interactive_menu(config: Dict[str, Union[str, int]]) -> str:
     WHITE = "\033[37m"
     CYAN = "\033[36m"
 
-    # Handle default and legacy menu
+    # Handle default, legacy, and colorless menu
     theme = config.get("menu_theme", "")
 
     if theme == "legacy":
@@ -33,6 +33,13 @@ def interactive_menu(config: Dict[str, Union[str, int]]) -> str:
         NUMS = f"{BOLD}{YELLOW}"
         HELP_TXT = f"{NORMAL}{YELLOW}"
         EXIT_TXT = f"{BOLD}{RED}"
+    elif theme == "none":
+        TITLES = BOLD
+        TEXT = ""
+        NUMS = BOLD
+        HELP_TXT = ""
+        EXIT_TXT = BOLD
+        NORMAL = "" 
     else:
         TITLES = f"{BOLD}{CYAN}"
         TEXT = f"{NORMAL}{WHITE}"
