@@ -66,7 +66,7 @@ def detailed_git_stats(config: Dict[str, Union[str, int]], branch: Optional[str]
             "--use-mailmap",
             merges,
             "--numstat",
-            "--pretty=format:%H%x09%an%x09%ae%x09%ad",
+            "--pretty=format:%H%x09%aN%x09%aE%x09%ad",
             "--date=raw",
             since,
             until,
@@ -495,7 +495,7 @@ def save_git_log_output_json(config: Dict[str, Union[str, int]]) -> None:
         since,
         until,
         log_options,
-        "--pretty=format:%H|%an|%ad|%s",
+        "--pretty=format:%H|%aN|%ad|%s",
         "--date=iso",
     ]
 
