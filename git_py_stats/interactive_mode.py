@@ -44,6 +44,9 @@ def handle_interactive_mode(config: Dict[str, Union[str, int]]) -> None:
         "20": lambda: list_cmds.git_commits_per_timezone(config),
         "21": lambda: list_cmds.git_commits_per_timezone(config, input("Enter author name: ")),
         "22": lambda: suggest_cmds.suggest_reviewers(config),
+        "23": lambda: generate_cmds.commits_calendar_by_author(
+            config, input("Enter author name: ")
+        ),
     }
 
     while True:

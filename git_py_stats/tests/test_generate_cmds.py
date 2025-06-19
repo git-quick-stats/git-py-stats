@@ -107,6 +107,27 @@ class TestGenerateCmds(unittest.TestCase):
 
     @patch("git_py_stats.generate_cmds.run_git_command")
     @patch("builtins.print")
+    def test_commits_calendar_by_author(self, mock_print, mock_run_git_command):
+        """
+        Test commits_calendar_by_author function with an author specified.
+        """
+        # Mock git command outputs
+        mock_run_git_command.side_effect = [
+            "",  # git diff output (no changes)
+            "John Doe",  # git config user.name
+            "",  # git log output (no commits)
+        ]
+
+        generate_cmds.commits_calendar_by_author(self.mock_config, author="John Doe")
+
+        # Verify that the author option was included in the command
+        called_cmd = mock_run_git_command.call_args_list[0][0][0]
+        self.assertIn("--author=John Doe", called_cmd)
+
+        self.assertTrue(mock_print.called)
+
+    @patch("git_py_stats.generate_cmds.run_git_command")
+    @patch("builtins.print")
     def test_my_daily_status(self, mock_print, mock_run_git_command):
         """
         Test my_daily_status function with sample git output.

@@ -50,6 +50,9 @@ def handle_non_interactive_mode(args: Namespace, config: Dict[str, Union[str, in
             config, args.commits_by_author_by_timezone
         ),
         "suggest_reviewers": lambda: suggest_cmds.suggest_reviewers(config),
+        "commits_calendar_by_author": lambda: generate_cmds.commits_calendar_by_author(
+            config, args.commits_calendar_by_author
+        ),
     }
 
     # Call the appropriate function based on the command-line argument
