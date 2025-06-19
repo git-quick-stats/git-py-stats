@@ -25,7 +25,9 @@ class TestInteractiveMenu(unittest.TestCase):
         # Mock configurations for testing
         self.config_default = {}  # Default theme
         self.config_legacy = {"menu_theme": "legacy"}  # Legacy theme
+        self.config_none = {"menu_theme": "none"}  # Alternate colorless theme alias
 
+    # Test cases for default theme
     @patch("builtins.input", return_value="1")
     @patch("sys.stdout", new_callable=StringIO)
     def test_default_theme_option_1(self, mock_stdout, mock_input):
@@ -76,6 +78,57 @@ class TestInteractiveMenu(unittest.TestCase):
         output = strip_ansi_codes(mock_stdout.getvalue())
         self.assertIn("Generate:", output)
 
+    @patch("builtins.input", return_value="3")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_none_theme_option_3(self, mock_stdout, mock_input):
+        """
+        Test the interactive_menu with 'none' theme and user selects option '3'.
+        """
+        choice = interactive_menu(self.config_none)
+        self.assertEqual(choice, "3")
+        output = mock_stdout.getvalue()
+        self.assertNotIn("\033[31m", output)
+        self.assertNotIn("\033[33m", output)
+        self.assertNotIn("\033[36m", output)
+        self.assertIn("\033[1m", output)
+
+    @patch("builtins.input", return_value="1")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_none_theme_option_1(self, mock_stdout, mock_input):
+        """
+        Test the interactive_menu with 'none' theme and user selects option '1'.
+        """
+        choice = interactive_menu(self.config_none)
+        self.assertEqual(choice, "1")
+        output = mock_stdout.getvalue()
+        self.assertNotIn("\033[31m", output)
+        self.assertNotIn("\033[33m", output)
+        self.assertNotIn("\033[36m", output)
+        self.assertIn("\033[1m", output)
+
+    @patch("builtins.input", return_value="")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_none_theme_exit(self, mock_stdout, mock_input):
+        """
+        Test the interactive_menu with none theme and user presses Enter to exit.
+        """
+        choice = interactive_menu(self.config_none)
+        self.assertEqual(choice, "")
+        output = strip_ansi_codes(mock_stdout.getvalue())
+        self.assertIn("press Enter to exit", output)
+
+    @patch("builtins.input", return_value="invalid")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_none_theme_invalid_input(self, mock_stdout, mock_input):
+        """
+        Test the interactive_menu with none theme and user enters an invalid option.
+        """
+        choice = interactive_menu(self.config_none)
+        self.assertEqual(choice, "invalid")
+        output = strip_ansi_codes(mock_stdout.getvalue())
+        self.assertIn("Generate:", output)
+
+    # Test cases for legacy theme
     @patch("builtins.input", return_value="1")
     @patch("sys.stdout", new_callable=StringIO)
     def test_legacy_theme_option_1(self, mock_stdout, mock_input):
@@ -121,6 +174,7 @@ class TestInteractiveMenu(unittest.TestCase):
         output = strip_ansi_codes(mock_stdout.getvalue())
         self.assertIn("Generate:", output)
 
+    # Test cases for handling multiple inputs and edge cases
     @patch("builtins.input", side_effect=["1", ""])
     @patch("sys.stdout", new_callable=StringIO)
     def test_multiple_inputs(self, mock_stdout, mock_input):
@@ -145,6 +199,7 @@ class TestInteractiveMenu(unittest.TestCase):
         output = strip_ansi_codes(mock_stdout.getvalue())
         self.assertIn("5) My daily status", output)
 
+    # Test cases for handling exit commands
     @patch("builtins.input", return_value="QUIT")
     @patch("sys.stdout", new_callable=StringIO)
     def test_input_quit(self, mock_stdout, mock_input):

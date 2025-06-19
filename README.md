@@ -309,11 +309,13 @@ export _GIT_BRANCH="master"
 
 ### Color Themes
 
-You can change to the legacy color scheme by toggling the variable
-`_MENU_THEME` between `default` and `legacy`
+You can change to the legacy color scheme by toggling the variable `_MENU_THEME` between `default` and `legacy`.
+You can completely disable the color theme by setting the `_MENU_THEME` variable to `none`.
 
 ```bash
 export _MENU_THEME="legacy"
+# or
+export _MENU_THEME="none"
 ```
 
 ## Contributing
