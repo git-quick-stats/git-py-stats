@@ -39,6 +39,7 @@ def get_config() -> Dict[str, Union[str, int]]:
         _GIT_LOG_OPTIONS (str): Additional git log options. Default is empty.
         _MENU_THEME (str): Toggles between the default theme and legacy theme.
             - 'legacy' to set the legacy theme
+            - 'none' to disable the menu theme
             - Empty to set the default theme
 
     Args:

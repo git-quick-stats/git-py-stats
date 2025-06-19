@@ -166,6 +166,15 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         help="Displays a list of commits per timezone by author",
     )
 
+    # Calendar Options
+    parser.add_argument(
+        "-k",
+        "--commits-calendar-by-author",
+        metavar='"AUTHOR NAME"',
+        type=str,
+        help="Show a calendar of commits by author",
+    )
+
     # Suggest Options
     parser.add_argument(
         "-r",
