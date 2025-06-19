@@ -120,6 +120,8 @@ def get_config() -> Dict[str, Union[str, int]]:
     menu_theme: Optional[str] = os.environ.get("_MENU_THEME")
     if menu_theme == "legacy":
         config["menu_theme"] = "legacy"
+    elif menu_theme == "none":
+        config["menu_theme"] = "none"
     else:
         config["menu_theme"] = ""
 

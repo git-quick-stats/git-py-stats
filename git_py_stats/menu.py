@@ -39,7 +39,7 @@ def interactive_menu(config: Dict[str, Union[str, int]]) -> str:
         NUMS = BOLD
         HELP_TXT = ""
         EXIT_TXT = BOLD
-        NORMAL = "" 
+        NORMAL = ""
     else:
         TITLES = f"{BOLD}{CYAN}"
         TEXT = f"{NORMAL}{WHITE}"
