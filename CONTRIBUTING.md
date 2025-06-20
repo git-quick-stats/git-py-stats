@@ -8,6 +8,7 @@ documentation improvements, and code enhancements.
 
 - [Code of Conduct](#code-of-conduct)
 - [How to Contribute](#how-to-contribute)
+  - [Requirements](#requirements)
   - [Reporting Issues](#reporting-issues)
   - [Suggesting Features](#suggesting-features)
   - [Submitting Pull Requests](#submitting-pull-requests)
@@ -15,6 +16,8 @@ documentation improvements, and code enhancements.
 - [Testing](#testing)
   - [Running Tests](#running-tests)
   - [Additional Tips](#additional-tips)
+- [Linting](#linting)
+- [Auto Formatting](#auto-formatting)
 - [Style Guidelines](#style-guidelines)
 - [Acknowledgments](#acknowledgments)
 
@@ -25,11 +28,33 @@ expectations for participation in this project.
 
 ## How to Contribute
 
+### Requirements
+
+Contributing is meant to be as painless as possible. However, for the
+sake of a nicely readable and unified codebase, there are some extra
+steps needed before anybody can contribute. While the actual application
+itself only requires Python 3 and Git, contributing will require you to
+install additional applications. The following are required in order to
+pass our CI builder:
+
+- [`ruff`](https://github.com/astral-sh/ruff)
+- [`black`](https://github.com/psf/black)
+
+We understand these opinionated tools may be a bit controversial,
+but these tools help keep consistency and maintain some semblance
+of standardization across the codebase. If you code does not pass the
+CI builder, it will not be allowed to be merged in, so please keep that
+in mind when submitting code.
+
 ### Reporting Issues
 
 If you encounter any bugs or have suggestions for improvements,
-please [open an issue](https://github.com/tomice/git-py-stats/issues).
-When reporting an issue, please include the following:
+please [open an issue](https://github.com/git-quick-stats/git-py-stats/issues).
+We recommend opening up an issue regardless of how minor the change
+may be, as it allows us to better track changes in the project.
+You can even submit a pull request immediately after to address the issue.
+
+When reporting an issue, please try to include the following:
 
 - A clear and descriptive title.
 - A detailed description of the problem or suggestion.
@@ -40,7 +65,13 @@ When reporting an issue, please include the following:
 
 Have an idea for a new feature? We'd love to hear it! Please create an issue
 with the tag `feature request` and provide as much detail as possible about
-the proposed functionality.
+the proposed functionality. One of the maintainers should get back to you
+within a timely manner to discuss the new features.
+
+Please note that this project strives to maintain feature parity with the
+parent project, [`git-quick-stats`](https://github.com/git-quick-stats/git-quick-stats/).
+Depending on the change, we may ask you to first submit the feature request
+to the parent project before we adopt it.
 
 ### Submitting Pull Requests
 
@@ -82,15 +113,21 @@ Contributions are made via pull requests. Here's how to submit one:
    git commit -m "Add feature: description of your feature"
    ```
 
-6. **Push to Your Fork**
+   Please note that GitHub has [built-in keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
+   that allow you to automatically link an issue to a commit message.
+   Making use of these makes it easier to see exactly what each
+   commit is attempting to address.
+
+7. **Push to Your Fork**
 
    ```bash
    git push origin feature/your-feature-name
    ```
 
-7. **Open a Pull Request**
+8. **Open a Pull Request**
 
-   Navigate to the original repository and click on "New Pull Request".
+   Navigate to the original repository and click on "New Pull Request",
+   or try [this link](https://github.com/git-quick-stats/git-py-stats/compare).
    Provide a clear description of your changes and reference any related issues
    should they exist.
 
@@ -139,7 +176,7 @@ Ensure that all tests pass before submitting a pull request.
     within the `git_py_stats/tests/` directory:
 
     ```bash
-    python3 -m unittest discover -s git_py_stats/tests
+    python -m unittest discover -s git_py_stats/tests
     ```
 
 3. **Run a Specific Test File**:
@@ -147,7 +184,7 @@ Ensure that all tests pass before submitting a pull request.
     To run a specific test file, you can use:
 
     ```bash
-    python3 -m unittest git_py_stats.tests.test_generate_cmds
+    python -m unittest git_py_stats.tests.test_generate_cmds
     ```
 
 ### Additional Tips
@@ -156,19 +193,76 @@ Ensure that all tests pass before submitting a pull request.
 - To view more detailed output, use the `-v` (verbose) flag:
 
     ```bash
-    python3 -m unittest discover -s git_py_stats/tests -v
+    python -m unittest discover -s git_py_stats/tests -v
     ```
 
 - To run all tests automatically and display a summary of results:
 
     ```bash
-    python3 -m unittest discover -s git_py_stats/tests
+    python -m unittest discover -s git_py_stats/tests
     ```
 
 - If you need help writing tests, here are tutorials and books that might help:
   - [Python's unittest docs](https://docs.python.org/3/library/unittest.html)
   - [Python's unittest.mock docs](https://docs.python.org/3/library/unittest.mock.html)
   - [Obey the Testing Goat](https://www.obeythetestinggoat.com/pages/book.html#toc)
+
+## Linting
+
+As stated before, we use `ruff` for linting. Installing `ruff` will depend on
+your system and how you want to manage your dependencies in general. Ubuntu
+and Fedora can use [snaps](https://snapcraft.io/install/ruff/ubuntu),
+Arch can use [pacman](https://archlinux.org/packages/extra/x86_64/ruff/),
+and of course, anybody can use [PyPI](https://pypi.org/project/ruff/).
+
+Ultimately, it is up to you how you wish to install `ruff`, but it is required
+to pass in order to be able to get past our CI builder.
+
+Once `ruff` is installed, you can invoke it by running the following command
+inside the `git-py-stats` repo:
+
+```sh
+ruff check git_py_stats
+```
+
+If it passes, `ruff` will print out "All checks passed!" If it gives an
+error, it will point you to where the issue is and mention the problem.
+
+Sometimes, minor issues can be fixed using the `--fix` flag. `ruff` will
+try to point these out and fix them for you. Feel free to use this option,
+but realize it might conflict with `black`, so always try to run the linter
+and get that to pass before running it through the auto formatter.
+
+## Auto Formatting
+
+Like earlier, we are opinionated on how the code should look. As such, we
+have a highly opinionated auto formatter thanks to `black`. Just like with
+`ruff`, installing `black` will depend on your system and how you want to
+manage dependencies. You can see how to install it on a slew of different
+operating systems [here](https://snapcraft.io/black). Like nearly all Python
+projects, there is also a [PyPI](https://pypi.org/project/black/) equivalent.
+
+Install this however you wish, but your code must pass `black`'s default
+auto formatter settings in order to be able to pass our CI builder.
+
+Once `black` is installed, you can invoke it by running the following command
+inside the `git-py-stats` repo:
+
+```sh
+black .
+```
+
+It should report back something similar to the following:
+
+```sh
+All done! ✨ 🍰 ✨
+21 files left unchanged.
+```
+
+That's it! If there were any changes, commit them. Do *not* try to re-adjust
+anything as that might break the auto formatting you just applied.
+
+Once that's done, your code is finally ready for a pull request!
 
 ## Style Guidelines
 
