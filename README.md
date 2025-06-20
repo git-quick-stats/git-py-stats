@@ -19,7 +19,7 @@ It offers a similar set of git statistics and reports, but it's built entirely
 using Python 3, providing improved cross-platform compatibility
 and ease of maintenance.
 
-![mainMenuScreenshot](https://github.com/user-attachments/assets/4c3f49d8-62a9-4208-a968-5270e36aa3b8)
+![mainMenuScreenshot](https://github.com/user-attachments/assets/fc9ff78c-134c-4cb5-a910-10c005e98aff)
 
 ## Table of Contents
 
@@ -58,7 +58,9 @@ reliance on Bash and external utilities:
   WSL or Cygwin to run.
 - **Dependency on External Tools**: Although it is written in Bash, it depends
   heavily on external tools like `tput`, `column`, and `grep`, which may not be
-  installed depending on how the user's system is configured.
+  installed depending on how the user's system is configured, especially if you
+  happen to be running this on a minimal Linux distro targeted for embedded
+  devices with a sparse dev environment.
 - **Robust File Generation**: `git-quick-stats` has the ability to export
   stats in JSON and CSV format, but they are home-grown implementations that
   are currently in experimental mode.
@@ -119,6 +121,8 @@ to the parent project:
 
   If your `python` is symlinked to Python 2, you can use
   [`pyenv`](https://github.com/pyenv/pyenv) to switch between Python versions.
+  Alternatively, as long as Python 3 is installed, you should be able to replace
+  any of the `python` commands with `python3`.
 
 - **Git**:
   Git should be installed and available in your system's `PATH`.
@@ -309,8 +313,9 @@ export _GIT_BRANCH="master"
 
 ### Color Themes
 
-You can change to the legacy color scheme by toggling the variable `_MENU_THEME` between `default` and `legacy`.
-You can completely disable the color theme by setting the `_MENU_THEME` variable to `none`.
+You can change to the legacy color scheme by toggling the variable `_MENU_THEME`
+between `default` and `legacy`. You can completely disable the color theme by
+setting the `_MENU_THEME` variable to `none`.
 
 ```bash
 export _MENU_THEME="legacy"
@@ -322,7 +327,18 @@ export _MENU_THEME="none"
 
 We welcome contributions of all kinds! Please read our
 [CONTRIBUTING.md](https://github.com/tomice/git-py-stats/blob/main/CONTRIBUTING.md)
-guide to learn how to get involved.
+guide to learn how to get involved. It contains more detailed information to
+help walk you through how to contribute. If there are any questions, feel free
+to ask when submitting your issue or PR, and one of the maintainers will help!
+
+To sum it up, please do the following:
+
+1. Create an [issue](https://github.com/git-quick-stats/git-py-stats/issues/new) on GitHub.
+2. Clone the [repo](https://github.com/git-quick-stats/git-py-stats) and make your changes.
+3. Write the accompanying [tests](https://docs.python.org/3/library/unittest.html).
+4. Auto lint with [`ruff`](https://github.com/astral-sh/ruff).
+5. Auto format with [`black`](https://github.com/psf/black).
+6. Submit the [PR](https://github.com/git-quick-stats/git-py-stats/compare).
 
 ## Code of Conduct
 
