@@ -5,7 +5,7 @@ Handles the non-interactive mode for Git Py Stats
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
 from typing import Dict, Union
 
-from git_py_stats import generate_cmds, list_cmds, suggest_cmds
+from git_py_stats import generate_cmds, list_cmds, suggest_cmds, calendar_cmds
 
 
 def handle_non_interactive_mode(args: Namespace, config: Dict[str, Union[str, int]]) -> None:
@@ -50,9 +50,10 @@ def handle_non_interactive_mode(args: Namespace, config: Dict[str, Union[str, in
             config, args.commits_by_author_by_timezone
         ),
         "suggest_reviewers": lambda: suggest_cmds.suggest_reviewers(config),
-        "commits_calendar_by_author": lambda: generate_cmds.commits_calendar_by_author(
+        "commits_calendar_by_author": lambda: calendar_cmds.commits_calendar_by_author(
             config, args.commits_calendar_by_author
         ),
+        "commits_heatmap": lambda: calendar_cmds.commits_heatmap(config),
     }
 
     # Call the appropriate function based on the command-line argument

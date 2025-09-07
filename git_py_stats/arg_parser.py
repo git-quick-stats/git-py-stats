@@ -175,6 +175,13 @@ def parse_arguments(argv: Optional[List[str]] = None) -> Namespace:
         help="Show a calendar of commits by author",
     )
 
+    parser.add_argument(
+        "-H",
+        "--commits-heatmap",
+        action="store_true",
+        help="Show a heatmap of commits per day-of-week",
+    )
+
     # Suggest Options
     parser.add_argument(
         "-r",

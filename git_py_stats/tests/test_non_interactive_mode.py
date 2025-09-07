@@ -47,6 +47,7 @@ class TestNonInteractiveMode(unittest.TestCase):
             "commits_by_author_by_timezone": None,
             "suggest_reviewers": False,
             "commits_calendar_by_author": None,
+            "commits_heatmap": None,
         }
 
     @patch("git_py_stats.non_interactive_mode.generate_cmds.detailed_git_stats")
@@ -105,13 +106,21 @@ class TestNonInteractiveMode(unittest.TestCase):
         non_interactive_mode.handle_non_interactive_mode(args, self.mock_config)
         mock_save_json.assert_called_once_with(self.mock_config)
 
-    @patch("git_py_stats.non_interactive_mode.generate_cmds.commits_calendar_by_author")
+    @patch("git_py_stats.non_interactive_mode.calendar_cmds.commits_calendar_by_author")
     def test_commits_calendar_by_author(self, mock_commits_calendar_by_author):
         args_dict = self.all_args.copy()
         args_dict["commits_calendar_by_author"] = "John Doe"
         args = Namespace(**args_dict)
         non_interactive_mode.handle_non_interactive_mode(args, self.mock_config)
         mock_commits_calendar_by_author.assert_called_once_with(self.mock_config, "John Doe")
+
+    @patch("git_py_stats.non_interactive_mode.calendar_cmds.commits_heatmap")
+    def test_commits_heatmap(self, mock_commits_heatmap):
+        args_dict = self.all_args.copy()
+        args_dict["commits_heatmap"] = True
+        args = Namespace(**args_dict)
+        non_interactive_mode.handle_non_interactive_mode(args, self.mock_config)
+        mock_commits_heatmap.assert_called_once_with(self.mock_config)
 
     @patch("git_py_stats.non_interactive_mode.list_cmds.branch_tree")
     def test_branch_tree(self, mock_branch_tree):

@@ -37,6 +37,7 @@ def get_config() -> Dict[str, Union[str, int]]:
             - Any other value defaults to '--no-merges' currently.
         _GIT_LIMIT (int): Limits the git log output. Defaults to 10.
         _GIT_LOG_OPTIONS (str): Additional git log options. Default is empty.
+        _GIT_DAYS (int): Defines number of days for the heatmap. Default is empty.
         _MENU_THEME (str): Toggles between the default theme and legacy theme.
             - 'legacy' to set the legacy theme
             - 'none' to disable the menu theme
@@ -116,6 +117,18 @@ def get_config() -> Dict[str, Union[str, int]]:
         config["log_options"] = git_log_options
     else:
         config["log_options"] = ""
+
+    # _GIT_DAYS
+    git_days: Optional[str] = os.environ.get("_GIT_DAYS")
+    if git_days:
+        # Slight sanitization, but we're still gonna wild west this a bit
+        try:
+            config["days"] = int(git_days)
+        except ValueError:
+            print("Invalid value for _GIT_DAYS. Using default value 30.")
+            config["days"] = 30
+    else:
+        config["days"] = 30
 
     # _MENU_THEME
     menu_theme: Optional[str] = os.environ.get("_MENU_THEME")

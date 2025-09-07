@@ -4,7 +4,7 @@ Interactive mode file for Git Py Stats
 
 from typing import Dict, Union
 
-from git_py_stats import generate_cmds, list_cmds, suggest_cmds
+from git_py_stats import generate_cmds, list_cmds, suggest_cmds, calendar_cmds
 from git_py_stats.menu import interactive_menu
 
 
@@ -44,9 +44,10 @@ def handle_interactive_mode(config: Dict[str, Union[str, int]]) -> None:
         "20": lambda: list_cmds.git_commits_per_timezone(config),
         "21": lambda: list_cmds.git_commits_per_timezone(config, input("Enter author name: ")),
         "22": lambda: suggest_cmds.suggest_reviewers(config),
-        "23": lambda: generate_cmds.commits_calendar_by_author(
+        "23": lambda: calendar_cmds.commits_calendar_by_author(
             config, input("Enter author name: ")
         ),
+        "24": lambda: calendar_cmds.commits_heatmap(config),
     }
 
     while True:
