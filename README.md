@@ -19,7 +19,7 @@ It offers a similar set of git statistics and reports, but it's built entirely
 using Python 3, providing improved cross-platform compatibility
 and ease of maintenance.
 
-![mainMenuScreenshot](https://github.com/user-attachments/assets/fc9ff78c-134c-4cb5-a910-10c005e98aff)
+![mainMenuScreenshot](https://github.com/user-attachments/assets/db99d110-c43b-4ba7-baa9-b7d0167475cf)
 
 ## Table of Contents
 
@@ -311,7 +311,7 @@ Works with commands `--git-stats-by-branch` and `--csv-output-by-branch`.
 export _GIT_BRANCH="master"
 ```
 
-### Commit days
+### Commit Days
 
 You can set the variable `_GIT_DAYS` to set the number of days for the heatmap.
 
