@@ -311,6 +311,14 @@ Works with commands `--git-stats-by-branch` and `--csv-output-by-branch`.
 export _GIT_BRANCH="master"
 ```
 
+### Commit days
+
+You can set the variable `_GIT_DAYS` to set the number of days for the heatmap.
+
+```bash
+export _GIT_DAYS=30
+```
+
 ### Color Themes
 
 You can change to the legacy color scheme by toggling the variable `_MENU_THEME`

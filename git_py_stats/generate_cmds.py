@@ -7,7 +7,6 @@ import csv
 import json
 from typing import Optional, Dict, Any, List, Union
 from datetime import datetime, timedelta
-from collections import defaultdict
 
 from git_py_stats.git_operations import run_git_command
 
@@ -304,94 +303,6 @@ def changelogs(config: Dict[str, Union[str, int]], author: Optional[str] = None)
         if output:
             print(f" {output}")
         next_date = date  # Update next_date for the next iteration
-
-
-def commits_calendar_by_author(config: Dict[str, Union[str, int]], author: Optional[str]) -> None:
-    """
-    Displays a calendar of commits by author
-
-    Args:
-        config: Dict[str, Union[str, int]]: Config dictionary holding env vars.
-        author: Optional[str]: The author's name to filter commits by.
-
-    Returns:
-        None
-    """
-
-    # Initialize variables similar to the Bash version
-    author_option = f"--author={author}" if author else ""
-
-    # Grab the config options from our config.py.
-    # config.py should give fallbacks for these, but for sanity,
-    # lets also provide some defaults just in case.
-    merges = config.get("merges", "--no-merges")
-    since = config.get("since", "")
-    until = config.get("until", "")
-    log_options = config.get("log_options", "")
-    pathspec = config.get("pathspec", "")
-
-    # Original git command:
-    # git -c log.showSignature=false log --use-mailmap $_merges \
-    #    --date=iso --author="$author" "$_since" "$_until" $_log_options \
-    #    --pretty='%ad' $_pathspec
-    cmd = [
-        "git",
-        "-c",
-        "log.showSignature=false",
-        "log",
-        "--use-mailmap",
-        "--date=iso",
-        f"--author={author}",
-        "--pretty=%ad",
-    ]
-
-    if author_option:
-        cmd.append(author_option)
-
-    cmd.extend([since, until, log_options, merges, pathspec])
-
-    # Remove any empty space from the cmd
-    cmd = [arg for arg in cmd if arg]
-
-    print(f"Commit Activity Calendar for '{author}'")
-
-    # Get commit dates
-    output = run_git_command(cmd)
-    if not output:
-        print("No commits found.")
-        return
-
-    print("\n      Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec")
-
-    count = defaultdict(lambda: defaultdict(int))
-    for line in output.strip().split("\n"):
-        try:
-            date_str = line.strip().split(" ")[0]
-            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-            weekday = date_obj.isoweekday()  # 1=Mon, ..., 7=Sun
-            month = date_obj.month
-            count[weekday][month] += 1
-        except ValueError:
-            continue
-
-    # Print the calendar
-    weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    for d in range(1, 8):
-        row = f"{weekdays[d-1]:<5} "
-        for m in range(1, 13):
-            c = count[d][m]
-            if c == 0:
-                out = "..."
-            elif c <= 9:
-                out = "░░░"
-            elif c <= 19:
-                out = "▒▒▒"
-            else:
-                out = "▓▓▓"
-            row += out + (" " if m < 12 else "")
-        print(row)
-
-    print("\nLegend: ... = 0   ░░░ = 1–9   ▒▒▒ = 10–19   ▓▓▓ = 20+ commits")
 
 
 def my_daily_status(config: Dict[str, Union[str, int]]) -> None:

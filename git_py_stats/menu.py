@@ -17,6 +17,10 @@ def interactive_menu(config: Dict[str, Union[str, int]]) -> str:
         str: The user's menu choice.
     """
     # ANSI escape codes for colors and formatting
+    # FIXME: We now have colors in two places - one in the calendar area
+    # and one here. Refactor this to have a global color scheme for the
+    # whole program that it can leverage instead of having multiple colors
+    # in different places.
     NORMAL = "\033[0m"
     BOLD = "\033[1m"
     RED = "\033[31m"
@@ -26,6 +30,11 @@ def interactive_menu(config: Dict[str, Union[str, int]]) -> str:
 
     # Handle default, legacy, and colorless menu
     theme = config.get("menu_theme", "")
+
+    # Grab the days set by the user for _GIT_DAYS
+    # NOTE: We should already have a guard here to default this to 30
+    # in the config.py file. Possible redundancy here.
+    days = config.get("days", 30)
 
     if theme == "legacy":
         TITLES = f"{BOLD}{RED}"
@@ -74,6 +83,7 @@ def interactive_menu(config: Dict[str, Union[str, int]]) -> str:
     print(f"{NUMS}   22){TEXT} Code reviewers (based on git history)")
     print(f"\n{TITLES} Calendar:{NORMAL}")
     print(f"{NUMS}   23){TEXT} Activity calendar by author")
+    print(f"{NUMS}   24){TEXT} Activity heatmap for the last {days} days")
     print(f"\n{HELP_TXT}Please enter a menu option or {EXIT_TXT}press Enter to exit.{NORMAL}")
 
     choice = input(f"{TEXT}> {NORMAL}")
