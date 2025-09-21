@@ -5,10 +5,40 @@ Functions related to the 'Generate' section.
 import collections
 import csv
 import json
-from typing import Optional, Dict, Any, List, Union
+from typing import Optional, Dict, Any, List, Union, Tuple
 from datetime import datetime, timedelta
 
 from git_py_stats.git_operations import run_git_command
+
+
+# TODO: This can also be part of the future detailed_git_stats refactor
+def _author_sort_key(item: Tuple[str, Dict[str, Any]], sort_by: str) -> Tuple:
+    """
+    Helper function for detailed_git_stats to allow for easy sorting.
+
+    Args:
+        item: (author_display_name, stats_dict)
+        sort_by: one of 'name', 'commits', 'insertions', 'deletions', 'lines'
+
+    Returns:
+        A key suitable for sorting.
+    """
+    author, stats = item
+    commits = int(stats.get("commits", 0) or 0)
+    insertions = int(stats.get("insertions", 0) or 0)
+    deletions = int(stats.get("deletions", 0) or 0)
+    lines = int(stats.get("lines_changed", insertions + deletions) or 0)
+
+    if sort_by == "commits":
+        return (commits, author.lower())
+    if sort_by == "insertions":
+        return (insertions, author.lower())
+    if sort_by == "deletions":
+        return (deletions, author.lower())
+    if sort_by == "lines":
+        return (lines, author.lower())
+    # default: name
+    return (author.lower(),)
 
 
 # TODO: We should really refactor this; It's huge
@@ -150,10 +180,18 @@ def detailed_git_stats(config: Dict[str, Union[str, int]], branch: Optional[str]
         f"\n Contribution stats (by author) on the {'current' if not branch else branch} branch:\n"
     )
 
-    # Sort authors alphabetically
-    sorted_authors = sorted(author_stats.items(), key=lambda x: x[0])
+    # Sort authors by env-configured metric/direction
+    sort_by = str(config.get("sort_by", "name")).lower()
+    sort_dir = str(config.get("sort_dir", "asc")).lower()
+    reverse = sort_dir == "desc"
 
-    for author, stats in sorted_authors:
+    author_items = list(author_stats.items())
+    author_items.sort(key=lambda it: _author_sort_key(it, sort_by), reverse=reverse)
+
+    if author_items:
+        print(f"\nSorting by: {sort_by} ({'desc' if reverse else 'asc'})\n")
+
+    for author, stats in author_items:
         email = stats["email"]
         insertions = stats["insertions"]
         deletions = stats["deletions"]

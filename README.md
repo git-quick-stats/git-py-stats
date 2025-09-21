@@ -311,6 +311,20 @@ Works with commands `--git-stats-by-branch` and `--csv-output-by-branch`.
 export _GIT_BRANCH="master"
 ```
 
+### Sorting Contribution Stats
+
+You can sort contribution stats by field `name`, `commits`, `insertions`,
+`deletions`, or `lines` (total lines changed), followed by a hyphen and
+a direction (`asc`, `desc`).
+
+```bash
+export _GIT_SORT_BY="name-asc"
+or
+export _GIT_SORT_BY="lines-desc"
+or
+export _GIT_SORT_BY="deletions-asc"
+```
+
 ### Commit Days
 
 You can set the variable `_GIT_DAYS` to set the number of days for the heatmap.
