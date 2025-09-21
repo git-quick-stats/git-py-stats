@@ -17,8 +17,8 @@ def _author_sort_key(item: Tuple[str, Dict[str, Any]], sort_by: str) -> Tuple:
     Helper function for detailed_git_stats to allow for easy sorting.
 
     Args:
-        item: (author_display_name, stats_dict)
-        sort_by: one of 'name', 'commits', 'insertions', 'deletions', 'lines'
+        item: Tuple[str, Dict[str, Any]]: author_display_name and stats_dict
+        sort_by (str): 'name', 'commits', 'insertions', 'deletions', or 'lines'
 
     Returns:
         A key suitable for sorting.

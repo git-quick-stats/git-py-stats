@@ -20,8 +20,13 @@ def _parse_git_sort_by(raw: str) -> tuple[str, str]:
     Handles the following directions:
       - "asc" (default)
       - "desc"
-    Returns (sort_by, sort_dir) normalized.
-    Unknown metric -> 'name'; unknown dir -> 'asc'.
+
+    Args:
+        Raw string
+
+    Returns:
+        metric (str): The metric to sort by
+        direction (str): Whether we want ascending or descending
     """
     allowed_metrics = {"name", "commits", "insertions", "deletions", "lines"}
     metric = "name"
@@ -79,7 +84,7 @@ def get_config() -> Dict[str, Union[str, int]]:
         _GIT_LIMIT (int): Limits the git log output. Defaults to 10.
         _GIT_LOG_OPTIONS (str): Additional git log options. Default is empty.
         _GIT_DAYS (int): Defines number of days for the heatmap. Default is empty.
-        _GIT_SORT_BY (str): Defines sorting direction for contribution stats.
+        _GIT_SORT_BY (str): Defines sort metric and direction for contribution stats.
                             Default is name-asc.
         _MENU_THEME (str): Toggles between the default theme and legacy theme.
             - 'legacy' to set the legacy theme
