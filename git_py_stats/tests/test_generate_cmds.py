@@ -22,6 +22,113 @@ class TestGenerateCmds(unittest.TestCase):
             "menu_theme": "",
         }
 
+    def _extract_printed_authors(self, mock_print):
+        """
+        Return the list of author display lines in the order they were printed.
+        """
+        authors = []
+        for call in mock_print.call_args_list:
+            msg = call.args[0] if call.args else ""
+            # lines look like "         John Doe <john@example.com>:"
+            if isinstance(msg, str) and msg.strip().endswith(">:"):
+                authors.append(msg.strip()[:-1])  # drop trailing ":"
+        return authors
+
+    @patch("git_py_stats.generate_cmds.run_git_command")
+    @patch("builtins.print")
+    def test_sort_by_commits_desc(self, mock_print, mock_run_git_command):
+        """
+        Test detailed_git_stats when sorting by commits in descending order.
+        """
+        # Two authors, B has more commits but fewer insertions
+        mock_run_git_command.return_value = (
+            # A1 (2 commits total)
+            "c1\tAlice\talice@example.com\t1609459200\n"
+            "10\t1\ta.py\n"
+            "c2\tAlice\talice@example.com\t1609459300\n"
+            "5\t0\ta2.py\n"
+            # B1 (3 commits total)
+            "c3\tBob\tbob@example.com\t1609460000\n"
+            "1\t1\tb.py\n"
+            "c4\tBob\tbob@example.com\t1609460100\n"
+            "2\t2\tb2.py\n"
+            "c5\tBob\tbob@example.com\t1609460200\n"
+            "3\t3\tb3.py\n"
+        )
+
+        cfg = dict(self.mock_config)
+        cfg["sort_by"] = "commits"
+        cfg["sort_dir"] = "desc"
+
+        generate_cmds.detailed_git_stats(cfg)
+
+        authors = self._extract_printed_authors(mock_print)
+        # Expect Bob first (3 commits) then Alice (2)
+        self.assertGreaterEqual(len(authors), 2)
+        self.assertTrue(authors[0].startswith("Bob <bob@example.com>"))
+        self.assertTrue(authors[1].startswith("Alice <alice@example.com>"))
+        # Header shows sort choice
+        printed = " ".join(a.args[0] for a in mock_print.call_args_list if a.args)
+        self.assertIn("Sorting by: commits (desc)", printed)
+
+    @patch("git_py_stats.generate_cmds.run_git_command")
+    @patch("builtins.print")
+    def test_sort_by_lines_asc_with_name_tiebreaker(self, mock_print, mock_run_git_command):
+        """
+        Test detailed_git_stats when sorting by lines in ascending order.
+        Attempts to handle a "tiebreaker" when sorting by falling back to
+        the person's name in ascending order. So if Alice and Bob have the
+        same number of commits, Alice should be chosen.
+        """
+        mock_run_git_command.return_value = (
+            # Alice: 3+3 = 6 lines
+            "c1\tAlice\talice@example.com\t1609459200\n"
+            "3\t3\ta.py\n"
+            # Bob: 4+2 = 6 lines
+            "c2\tBob\tbob@example.com\t1609460000\n"
+            "4\t2\tb.py\n"
+        )
+
+        cfg = dict(self.mock_config)
+        cfg["sort_by"] = "lines"
+        cfg["sort_dir"] = "asc"
+
+        generate_cmds.detailed_git_stats(cfg)
+
+        authors = self._extract_printed_authors(mock_print)
+        self.assertGreaterEqual(len(authors), 2)
+        self.assertTrue(authors[0].startswith("Alice <alice@example.com>"))
+        self.assertTrue(authors[1].startswith("Bob <bob@example.com>"))
+        printed = " ".join(a.args[0] for a in mock_print.call_args_list if a.args)
+        self.assertIn("Sorting by: lines (asc)", printed)
+
+    @patch("git_py_stats.generate_cmds.run_git_command")
+    @patch("builtins.print")
+    def test_sort_by_name_desc(self, mock_print, mock_run_git_command):
+        """
+        Test detailed_git_stats when sorting by name in descending order.
+        """
+        mock_run_git_command.return_value = (
+            "c1\tAlice\talice@example.com\t1609459200\n"
+            "1\t0\ta.py\n"
+            "c2\tBob\tbob@example.com\t1609460000\n"
+            "1\t0\tb.py\n"
+            "c3\tCarol\tcarol@example.com\t1609470000\n"
+            "1\t0\tc.py\n"
+        )
+
+        cfg = dict(self.mock_config)
+        cfg["sort_by"] = "name"
+        cfg["sort_dir"] = "desc"
+
+        generate_cmds.detailed_git_stats(cfg)
+
+        authors = self._extract_printed_authors(mock_print)
+        # Descending name: Carol, Bob, Alice
+        self.assertTrue(authors[0].startswith("Carol <carol@example.com>"))
+        self.assertTrue(authors[1].startswith("Bob <bob@example.com>"))
+        self.assertTrue(authors[2].startswith("Alice <alice@example.com>"))
+
     @patch("git_py_stats.generate_cmds.run_git_command")
     @patch("builtins.print")
     def test_detailed_git_stats(self, mock_print, mock_run_git_command):

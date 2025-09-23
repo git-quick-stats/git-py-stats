@@ -8,6 +8,52 @@ from typing import Dict, Union, Optional
 from git_py_stats.git_operations import run_git_command
 
 
+def _parse_git_sort_by(raw: str) -> tuple[str, str]:
+    """
+    Helper function for handling sorting features for contribution stats.
+    Handles the following metrics:
+      - "name" (default)
+      - "commits"
+      - "insertions"
+      - "deletions"
+      - "lines"
+    Handles the following directions:
+      - "asc" (default)
+      - "desc"
+
+    Args:
+        Raw string
+
+    Returns:
+        metric (str): The metric to sort by
+        direction (str): Whether we want ascending or descending
+    """
+    allowed_metrics = {"name", "commits", "insertions", "deletions", "lines"}
+    metric = "name"
+    direction = "asc"
+
+    if not raw:
+        return metric, direction
+
+    parts = raw.strip().lower().split("-", 1)
+    if parts:
+        m = parts[0].strip()
+        if m in allowed_metrics:
+            metric = m
+        else:
+            print(f"WARNING: Invalid sort metric '{m}' set in _GIT_SORT_BY.", end=" ")
+            print("Falling back to 'name'.")
+    if len(parts) == 2:
+        d = parts[1].strip()
+        if d in {"asc", "desc"}:
+            direction = d
+        else:
+            print(f"WARNING: Invalid sort direction '{m}' in _GIT_SORT_BY.", end=" ")
+            print("Falling back to 'asc'.")
+
+    return metric, direction
+
+
 # TODO: This is a rough equivalent of what the original program does.
 #       However, that doesn't mean this is the correct way to handle
 #       this type of operation since these are not much different
@@ -38,6 +84,8 @@ def get_config() -> Dict[str, Union[str, int]]:
         _GIT_LIMIT (int): Limits the git log output. Defaults to 10.
         _GIT_LOG_OPTIONS (str): Additional git log options. Default is empty.
         _GIT_DAYS (int): Defines number of days for the heatmap. Default is empty.
+        _GIT_SORT_BY (str): Defines sort metric and direction for contribution stats.
+                            Default is name-asc.
         _MENU_THEME (str): Toggles between the default theme and legacy theme.
             - 'legacy' to set the legacy theme
             - 'none' to disable the menu theme
@@ -129,6 +177,12 @@ def get_config() -> Dict[str, Union[str, int]]:
             config["days"] = 30
     else:
         config["days"] = 30
+
+    # _GIT_SORT_BY
+    _git_sort_by_raw = os.environ.get("_GIT_SORT_BY", "")
+    sort_by, sort_dir = _parse_git_sort_by(_git_sort_by_raw)
+    config["sort_by"] = sort_by
+    config["sort_dir"] = sort_dir
 
     # _MENU_THEME
     menu_theme: Optional[str] = os.environ.get("_MENU_THEME")
