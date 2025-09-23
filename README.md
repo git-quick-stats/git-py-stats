@@ -41,6 +41,8 @@ and ease of maintenance.
   - [Git Pathspec](#git-pathspec)
   - [Git Merge View Strategy](#git-merge-view-strategy)
   - [Git Branch](#git-branch)
+  - [Sorting Contribution Stats](#sorting-contribution-stats)
+  - [Commit Days](#commit-days)
   - [Color Themes](#color-themes)
 - [Contributing](#contributing)
 - [Code of Conduct](#code-of-conduct)
