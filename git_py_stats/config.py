@@ -3,9 +3,32 @@ Handles reading configuration settings from environment variables.
 """
 
 import os
+import re
 from datetime import datetime
-from typing import Dict, Union, Optional
+from typing import Dict, Union, Optional, Callable
 from git_py_stats.git_operations import run_git_command
+
+
+def _build_author_exclusion_filter(pattern: str) -> Callable[[str], bool]:
+    """
+    Compile a string of authors that tells you whether an author
+    should be ignored based on a user-configured environment
+    variable.
+
+    Args:
+        pattern (str): A regex (Example: "(user@example.com|Some User)").
+                       No flags are injected automatically, but users can
+                       include them for case-insensitive matches.
+
+    Returns:
+        Callable[[str], bool]: Input string 's' that matches the pattern to be
+                               ignored. False otherwise.
+    """
+    pattern = (pattern or "").strip()
+    if not pattern:
+        return lambda _s: False
+    rx = re.compile(pattern)
+    return lambda s: bool(rx.search(s or ""))
 
 
 def _parse_git_sort_by(raw: str) -> tuple[str, str]:
@@ -86,6 +109,7 @@ def get_config() -> Dict[str, Union[str, int]]:
         _GIT_DAYS (int): Defines number of days for the heatmap. Default is empty.
         _GIT_SORT_BY (str): Defines sort metric and direction for contribution stats.
                             Default is name-asc.
+        _GIT_IGNORE_AUTHORS (str): Defines authors to ignore. Default is empty.
         _MENU_THEME (str): Toggles between the default theme and legacy theme.
             - 'legacy' to set the legacy theme
             - 'none' to disable the menu theme
@@ -102,6 +126,9 @@ def get_config() -> Dict[str, Union[str, int]]:
             - 'merges' (str): Git command option for merge commit view strategy.
             - 'limit' (int): Git log output limit.
             - 'log_options' (str): Additional git log options.
+            - 'sort_by' (str): Sort by field and sort direction (asc/desc).
+            - 'days' (str): Number of days for the heatmap.
+            - 'ignore_authors': (str): Any author(s) to ignore.
             - 'menu_theme' (str): Menu theme color.
     """
     config: Dict[str, Union[str, int]] = {}
@@ -183,6 +210,10 @@ def get_config() -> Dict[str, Union[str, int]]:
     sort_by, sort_dir = _parse_git_sort_by(_git_sort_by_raw)
     config["sort_by"] = sort_by
     config["sort_dir"] = sort_dir
+
+    # _GIT_IGNORE_AUTHORS
+    ignore_authors_pattern: Optional[str] = os.environ.get("_GIT_IGNORE_AUTHORS")
+    config["ignore_authors"] = _build_author_exclusion_filter(ignore_authors_pattern)
 
     # _MENU_THEME
     menu_theme: Optional[str] = os.environ.get("_MENU_THEME")

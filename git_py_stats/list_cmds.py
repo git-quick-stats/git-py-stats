@@ -79,24 +79,32 @@ def branch_tree(config: Dict[str, Union[str, int]]) -> None:
         print("No data available.")
 
 
-def branches_by_date() -> None:
+def branches_by_date(config: Dict[str, Union[str, int]]) -> None:
     """
     Lists branches sorted by the latest commit date.
 
     Args:
-        None
+        config: Dict[str, Union[str, int]]: Config dictionary holding env vars.
 
     Returns:
         None
     """
 
+    # Grab the config options from our config.py.
+    ignore_authors = config.get("ignore_authors", lambda _s: False)
+    
     # Original command:
     # git for-each-ref --sort=committerdate refs/heads/ \
     #     --format='[%(authordate:relative)] %(authorname) %(refname:short)' | cat -n
     # TODO: Wouldn't git log --pretty=format:'%ad' --date=short be better here?
     #       Then we could pipe it through sort, uniq -c, sort -nr, etc.
     #       Possibly feed back into the parent project
-    format_str = "[%(authordate:relative)] %(authorname) %(refname:short)"
+
+    # Include the email so we can filter based off it, but keep the visible
+    # part the same as before.
+    visible_fmt = "[%(authordate:relative)] %(authorname) %(refname:short)"
+    format_str = f"{visible_fmt}|%(authoremail)"
+    
     cmd = [
         "git",
         "for-each-ref",
@@ -106,20 +114,35 @@ def branches_by_date() -> None:
     ]
 
     output = run_git_command(cmd)
-    if output:
-        # Split the output into lines
-        lines = output.split("\n")
-
-        # Number the lines similar to 'cat -n'
-        numbered_lines = [f"{idx + 1}  {line}" for idx, line in enumerate(lines)]
-
-        # Output numbered lines
-        print("All branches (sorted by most recent commit):\n")
-        for line in numbered_lines:
-            print(f"\t{line}")
-    else:
+    if not output:
         print("No commits found.")
+        return
 
+    # Split lines and filter by author (both name and email), but keep
+    # visible text only.
+    visible_lines = []
+    for raw in output.split("\n"):
+        if not raw.strip():
+            continue
+        if "|" in raw:
+            visible, email = raw.split("|", 1)
+        else:
+            visible, email = raw, ""
+
+        # Filter by either email or the visible chunk.
+        if ignore_authors(email) or ignore_authors(visible):
+            continue
+
+        visible_lines.append(visible)
+
+    if not visible_lines:
+        print("No commits found.")
+        return
+
+    # Number like `cat -n`
+    print("All branches (sorted by most recent commit):\n")
+    for idx, line in enumerate(visible_lines, 1):
+        print(f"\t{idx}  {line}")
 
 def contributors(config: Dict[str, Union[str, int]]) -> None:
     """
@@ -213,6 +236,7 @@ def new_contributors(config: Dict[str, Union[str, int]], new_date: str) -> None:
     until = config.get("until", "")
     log_options = config.get("log_options", "")
     pathspec = config.get("pathspec", "")
+    ignore_authors = config.get("ignore_authors", lambda _s: False)
 
     # Original command:
     # git -c log.showSignature=false log --use-mailmap $_merges \
@@ -245,6 +269,9 @@ def new_contributors(config: Dict[str, Union[str, int]], new_date: str) -> None:
             try:
                 email, timestamp = line.split("|")
                 timestamp = int(timestamp)
+                # Skip ignored by email
+                if ignore_authors(email):
+                    continue
                 # If the contributor is not in the dictionary or the current timestamp is earlier
                 if email not in contributors_dict or timestamp < contributors_dict[email]:
                     contributors_dict[email] = timestamp
@@ -283,12 +310,14 @@ def new_contributors(config: Dict[str, Union[str, int]], new_date: str) -> None:
                 name_cmd = [arg for arg in name_cmd if arg]
 
                 # Grab name + email if we can. Otherwise, just grab email
-                name = run_git_command(name_cmd)
-                if name:
-                    new_contributors_list.append((name, email))
-                else:
-                    new_contributors_list.append(("", email))
+                # while also making sure to ignore any authors that may be
+                # in our ignore_author env var
+                name = (run_git_command(name_cmd) or "").strip()
+                combo = f"{name} <{email}>" if name else f"<{email}>"
+                if ignore_authors(email) or ignore_authors(name) or ignore_authors(combo):
+                    continue
 
+                new_contributors_list.append((name, email))
         # Sort the list alphabetically by name to match the original
         # and print all of this out
         if new_contributors_list:

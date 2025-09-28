@@ -313,6 +313,16 @@ Works with commands `--git-stats-by-branch` and `--csv-output-by-branch`.
 export _GIT_BRANCH="master"
 ```
 
+### Ignore Authors
+
+You can set the variable `_GIT_IGNORE_AUTHORS` to filter out specific
+authors. It will currently work with the "Code reviewers", "New contributors",
+"All branches", and "Output daily stats by branch in CSV format" options.
+
+```bash
+export _GIT_IGNORE_AUTHORS="(author@examle.com|username)"
+```
+
 ### Sorting Contribution Stats
 
 You can sort contribution stats by field `name`, `commits`, `insertions`,

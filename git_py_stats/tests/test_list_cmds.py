@@ -57,7 +57,7 @@ class TestListCmds(unittest.TestCase):
         mock_run_git_command.return_value = (
             "[2021-01-01] Author1 branch1\n" "[2021-01-02] Author2 branch2\n"
         )
-        list_cmds.branches_by_date()
+        list_cmds.branches_by_date(self.mock_config)
 
         mock_print.assert_called()
         mock_run_git_command.assert_called_once()
@@ -69,7 +69,7 @@ class TestListCmds(unittest.TestCase):
         Test case for branches_by_date with no data.
         """
         mock_run_git_command.return_value = ""
-        list_cmds.branches_by_date()
+        list_cmds.branches_by_date(self.mock_config)
 
         mock_print.assert_called_with("No commits found.")
 

@@ -268,11 +268,11 @@ class TestGenerateCmds(unittest.TestCase):
             generate_cmds.output_daily_stats_csv(self.mock_config)
 
             # Check that file was written
-            mocked_file.assert_called_with("daily_stats.csv", "w", newline="")
+            mocked_file.assert_called_with("git_daily_stats.csv", "w", newline="")
 
             # Check that print was called
             self.assertTrue(mock_print.called)
-            mock_print.assert_any_call("Daily stats saved to daily_stats.csv")
+            mock_print.assert_any_call("Daily stats saved to git_daily_stats.csv")
 
     @patch("git_py_stats.generate_cmds.run_git_command")
     @patch("builtins.input", return_value="")
@@ -378,7 +378,7 @@ class TestGenerateCmds(unittest.TestCase):
         with patch("builtins.open", side_effect=IOError("Disk full")):
             generate_cmds.output_daily_stats_csv(self.mock_config)
 
-            mock_print.assert_any_call("Failed to write to daily_stats.csv: Disk full")
+            mock_print.assert_any_call("Failed to write to git_daily_stats.csv: Disk full")
 
     @patch("git_py_stats.generate_cmds.run_git_command")
     @patch("builtins.print")

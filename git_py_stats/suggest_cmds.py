@@ -34,6 +34,7 @@ def suggest_reviewers(config: Dict[str, Union[str, int]]) -> None:
     until = config.get("until", "")
     log_options = config.get("log_options", "")
     pathspec = config.get("pathspec", "")
+    ignore_authors = config.get("ignore_authors", lambda _s: False)
 
     cmd = [
         "git",
@@ -63,6 +64,9 @@ def suggest_reviewers(config: Dict[str, Union[str, int]]) -> None:
         # and sanitize the string
         lines = [line.strip() for line in output.splitlines()]
         lines = [line for line in lines if line]
+
+        # Drop ignored authors (name-or-email patterns both supported)
+        lines = [a for a in lines if not ignore_authors(a)]
 
         # Return early if nothing found
         if not lines:
