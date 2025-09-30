@@ -307,7 +307,7 @@ export _GIT_MERGE_VIEW="exclusive"
 ### Git Branch
 
 You can set the variable `_GIT_BRANCH` to set the branch of the stats.
-Works with commands `--git-stats-by-branch` and `--csv-output-by-branch`.
+Works with command `--csv-output-by-branch` only currently.
 
 ```bash
 export _GIT_BRANCH="master"

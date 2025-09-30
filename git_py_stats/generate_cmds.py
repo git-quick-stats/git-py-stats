@@ -451,9 +451,11 @@ def output_daily_stats_csv(config: Dict[str, Union[str, int]]) -> None:
     until = config.get("until", "")
     log_options = config.get("log_options", "")
     pathspec = config.get("pathspec", "")
+    branch = config.get("branch", "")
     ignore_authors = config.get("ignore_authors", lambda _s: False)
 
-    branch = input("Enter branch name (leave empty for current branch): ")
+    if not branch:
+        branch = input("Enter branch name (leave empty for current branch): ")
 
     # Original command:
     # git -c log.showSignature=false log ${_branch} --use-mailmap $_merges --numstat \

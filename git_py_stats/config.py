@@ -104,6 +104,8 @@ def get_config() -> Dict[str, Union[str, int]]:
             - 'enable' to use the user's default merge view from the conf.
                Default is usually to show both regular and merge commits.
             - Any other value defaults to '--no-merges' currently.
+        _GIT_BRANCH (str): Sets branch you want to target for some stats.
+            Default is empty which falls back to the current branch you're on.
         _GIT_LIMIT (int): Limits the git log output. Defaults to 10.
         _GIT_LOG_OPTIONS (str): Additional git log options. Default is empty.
         _GIT_DAYS (int): Defines number of days for the heatmap. Default is empty.
@@ -124,10 +126,11 @@ def get_config() -> Dict[str, Union[str, int]]:
             - 'until' (str): Git command option for the end date.
             - 'pathspec' (str): Git command option for pathspec.
             - 'merges' (str): Git command option for merge commit view strategy.
+            - 'branch' (str): Git branch name.
             - 'limit' (int): Git log output limit.
             - 'log_options' (str): Additional git log options.
-            - 'sort_by' (str): Sort by field and sort direction (asc/desc).
             - 'days' (str): Number of days for the heatmap.
+            - 'sort_by' (str): Sort by field and sort direction (asc/desc).
             - 'ignore_authors': (str): Any author(s) to ignore.
             - 'menu_theme' (str): Menu theme color.
     """
@@ -172,6 +175,13 @@ def get_config() -> Dict[str, Union[str, int]]:
         config["merges"] = ""
     else:
         config["merges"] = "--no-merges"
+
+    # _GIT_BRANCH
+    git_branch: Optional[str] = os.environ.get("_GIT_BRANCH")
+    if git_branch:
+        config["branch"] = git_branch
+    else:
+        config["branch"] = ""
 
     # _GIT_LIMIT
     git_limit: Optional[str] = os.environ.get("_GIT_LIMIT")
