@@ -26,6 +26,9 @@ tags
 # macOS-related
 .DS_Store
 
+# Python-based virtual environment I use for publishing
+.venv-publish
+
 # Shamelessly taken from here because I'm lazy:
 # https://github.com/github/gitignore/blob/main/Python.gitignore
 
