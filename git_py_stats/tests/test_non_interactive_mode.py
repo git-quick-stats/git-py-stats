@@ -136,7 +136,7 @@ class TestNonInteractiveMode(unittest.TestCase):
         args_dict["branches_by_date"] = True
         args = Namespace(**args_dict)
         non_interactive_mode.handle_non_interactive_mode(args, self.mock_config)
-        mock_branches_by_date.assert_called_once_with()
+        mock_branches_by_date.assert_called_once_with(self.mock_config)
 
     @patch("git_py_stats.non_interactive_mode.list_cmds.contributors")
     def test_contributors(self, mock_contributors):

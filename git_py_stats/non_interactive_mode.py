@@ -30,7 +30,7 @@ def handle_non_interactive_mode(args: Namespace, config: Dict[str, Union[str, in
         "csv_output_by_branch": lambda: generate_cmds.output_daily_stats_csv(config),
         "json_output": lambda: generate_cmds.save_git_log_output_json(config),
         "branch_tree": lambda: list_cmds.branch_tree(config),
-        "branches_by_date": list_cmds.branches_by_date,
+        "branches_by_date": lambda: list_cmds.branches_by_date(config),
         "contributors": lambda: list_cmds.contributors(config),
         "new_contributors": lambda: list_cmds.new_contributors(config, args.new_contributors),
         "commits_per_author": lambda: list_cmds.git_commits_per_author(config),

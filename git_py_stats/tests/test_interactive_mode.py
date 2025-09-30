@@ -89,7 +89,7 @@ class TestInteractiveMode(unittest.TestCase):
     def test_option_9(self, mock_branches_by_date, mock_interactive_menu):
         mock_interactive_menu.side_effect = ["9", ""]
         interactive_mode.handle_interactive_mode(self.mock_config)
-        mock_branches_by_date.assert_called_once_with()
+        mock_branches_by_date.assert_called_once_with(self.mock_config)
 
     @patch("git_py_stats.interactive_mode.interactive_menu")
     @patch("git_py_stats.list_cmds.contributors")

@@ -451,8 +451,11 @@ def output_daily_stats_csv(config: Dict[str, Union[str, int]]) -> None:
     until = config.get("until", "")
     log_options = config.get("log_options", "")
     pathspec = config.get("pathspec", "")
+    branch = config.get("branch", "")
+    ignore_authors = config.get("ignore_authors", lambda _s: False)
 
-    branch = input("Enter branch name (leave empty for current branch): ")
+    if not branch:
+        branch = input("Enter branch name (leave empty for current branch): ")
 
     # Original command:
     # git -c log.showSignature=false log ${_branch} --use-mailmap $_merges --numstat \
@@ -478,22 +481,70 @@ def output_daily_stats_csv(config: Dict[str, Union[str, int]]) -> None:
     cmd = [arg for arg in cmd if arg]
 
     output = run_git_command(cmd)
-    if output:
-        dates = output.split("\n")
-        counter = collections.Counter(dates)
-        filename = "daily_stats.csv"
-        try:
-            with open(filename, "w", newline="") as csvfile:
-                fieldnames = ["Date", "Commits"]
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                for date, count in sorted(counter.items()):
-                    writer.writerow({"Date": date, "Commits": count})
-            print(f"Daily stats saved to {filename}")
-        except IOError as e:
-            print(f"Failed to write to {filename}: {e}")
-    else:
+
+    # Exit early if no output valid
+    if not output:
         print("No data available.")
+        return
+
+    # NOTE: This has to be expanded to handle the new ability to ignore
+    # authors, but there might be a better way to handle this...
+    kept_lines = []
+    current_block = []
+    current_ignored = False
+    have_seen_author = False
+
+    for line in output.splitlines():
+        # New commit starts
+        if line.startswith("commit "):
+            # Flush the previous block
+            if current_block and not current_ignored:
+                kept_lines.extend(current_block)
+            # Reset for the next block
+            current_block = [line]
+            current_ignored = False
+            have_seen_author = False
+            continue
+
+        # Only check author once per block
+        if not have_seen_author and line.startswith("Author: "):
+            author_line = line[len("Author: ") :].strip()
+            name = author_line
+            email = ""
+            if "<" in author_line and ">" in author_line:
+                name = author_line.split("<", 1)[0].strip()
+                email = author_line.split("<", 1)[1].split(">", 1)[0].strip()
+
+            # If any form matches (name or email), drop the whole block
+            if (
+                ignore_authors(author_line)
+                or ignore_authors(name)
+                or (email and ignore_authors(email))
+            ):
+                current_ignored = True
+            have_seen_author = True
+        current_block.append(line)
+
+    # Flush the last block
+    if current_block and not current_ignored:
+        kept_lines.extend(current_block)
+
+    # Found nothing worth keeping? Just exit then
+    if not kept_lines:
+        print("No data available.")
+        return
+
+    counter = collections.Counter(kept_lines)
+    filename = "git_daily_stats.csv"
+    try:
+        with open(filename, "w", newline="") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=["Date", "Commits"])
+            writer.writeheader()
+            for text, count in sorted(counter.items()):
+                writer.writerow({"Date": text, "Commits": count})
+        print(f"Daily stats saved to {filename}")
+    except IOError as e:
+        print(f"Failed to write to {filename}: {e}")
 
 
 # TODO: This doesn't match the original functionality as it uses some pretty

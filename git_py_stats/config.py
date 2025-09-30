@@ -3,9 +3,32 @@ Handles reading configuration settings from environment variables.
 """
 
 import os
+import re
 from datetime import datetime
-from typing import Dict, Union, Optional
+from typing import Dict, Union, Optional, Callable
 from git_py_stats.git_operations import run_git_command
+
+
+def _build_author_exclusion_filter(pattern: str) -> Callable[[str], bool]:
+    """
+    Compile a string of authors that tells you whether an author
+    should be ignored based on a user-configured environment
+    variable.
+
+    Args:
+        pattern (str): A regex (Example: "(user@example.com|Some User)").
+                       No flags are injected automatically, but users can
+                       include them for case-insensitive matches.
+
+    Returns:
+        Callable[[str], bool]: Input string 's' that matches the pattern to be
+                               ignored. False otherwise.
+    """
+    pattern = (pattern or "").strip()
+    if not pattern:
+        return lambda _s: False
+    rx = re.compile(pattern)
+    return lambda s: bool(rx.search(s or ""))
 
 
 def _parse_git_sort_by(raw: str) -> tuple[str, str]:
@@ -81,11 +104,14 @@ def get_config() -> Dict[str, Union[str, int]]:
             - 'enable' to use the user's default merge view from the conf.
                Default is usually to show both regular and merge commits.
             - Any other value defaults to '--no-merges' currently.
+        _GIT_BRANCH (str): Sets branch you want to target for some stats.
+            Default is empty which falls back to the current branch you're on.
         _GIT_LIMIT (int): Limits the git log output. Defaults to 10.
         _GIT_LOG_OPTIONS (str): Additional git log options. Default is empty.
         _GIT_DAYS (int): Defines number of days for the heatmap. Default is empty.
         _GIT_SORT_BY (str): Defines sort metric and direction for contribution stats.
                             Default is name-asc.
+        _GIT_IGNORE_AUTHORS (str): Defines authors to ignore. Default is empty.
         _MENU_THEME (str): Toggles between the default theme and legacy theme.
             - 'legacy' to set the legacy theme
             - 'none' to disable the menu theme
@@ -100,8 +126,12 @@ def get_config() -> Dict[str, Union[str, int]]:
             - 'until' (str): Git command option for the end date.
             - 'pathspec' (str): Git command option for pathspec.
             - 'merges' (str): Git command option for merge commit view strategy.
+            - 'branch' (str): Git branch name.
             - 'limit' (int): Git log output limit.
             - 'log_options' (str): Additional git log options.
+            - 'days' (str): Number of days for the heatmap.
+            - 'sort_by' (str): Sort by field and sort direction (asc/desc).
+            - 'ignore_authors': (str): Any author(s) to ignore.
             - 'menu_theme' (str): Menu theme color.
     """
     config: Dict[str, Union[str, int]] = {}
@@ -146,6 +176,13 @@ def get_config() -> Dict[str, Union[str, int]]:
     else:
         config["merges"] = "--no-merges"
 
+    # _GIT_BRANCH
+    git_branch: Optional[str] = os.environ.get("_GIT_BRANCH")
+    if git_branch:
+        config["branch"] = git_branch
+    else:
+        config["branch"] = ""
+
     # _GIT_LIMIT
     git_limit: Optional[str] = os.environ.get("_GIT_LIMIT")
     if git_limit:
@@ -183,6 +220,10 @@ def get_config() -> Dict[str, Union[str, int]]:
     sort_by, sort_dir = _parse_git_sort_by(_git_sort_by_raw)
     config["sort_by"] = sort_by
     config["sort_dir"] = sort_dir
+
+    # _GIT_IGNORE_AUTHORS
+    ignore_authors_pattern: Optional[str] = os.environ.get("_GIT_IGNORE_AUTHORS")
+    config["ignore_authors"] = _build_author_exclusion_filter(ignore_authors_pattern)
 
     # _MENU_THEME
     menu_theme: Optional[str] = os.environ.get("_MENU_THEME")

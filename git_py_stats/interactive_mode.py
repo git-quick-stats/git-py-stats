@@ -30,7 +30,7 @@ def handle_interactive_mode(config: Dict[str, Union[str, int]]) -> None:
         "6": lambda: generate_cmds.output_daily_stats_csv(config),
         "7": lambda: generate_cmds.save_git_log_output_json(config),
         "8": lambda: list_cmds.branch_tree(config),
-        "9": list_cmds.branches_by_date,
+        "9": lambda: list_cmds.branches_by_date(config),
         "10": lambda: list_cmds.contributors(config),
         "11": lambda: list_cmds.new_contributors(config, input("Enter cutoff date (YYYY-MM-DD): ")),
         "12": lambda: list_cmds.git_commits_per_author(config),

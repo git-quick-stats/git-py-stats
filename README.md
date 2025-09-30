@@ -307,10 +307,20 @@ export _GIT_MERGE_VIEW="exclusive"
 ### Git Branch
 
 You can set the variable `_GIT_BRANCH` to set the branch of the stats.
-Works with commands `--git-stats-by-branch` and `--csv-output-by-branch`.
+Works with command `--csv-output-by-branch` only currently.
 
 ```bash
 export _GIT_BRANCH="master"
+```
+
+### Ignore Authors
+
+You can set the variable `_GIT_IGNORE_AUTHORS` to filter out specific
+authors. It will currently work with the "Code reviewers", "New contributors",
+"All branches", and "Output daily stats by branch in CSV format" options.
+
+```bash
+export _GIT_IGNORE_AUTHORS="(author@examle.com|username)"
 ```
 
 ### Sorting Contribution Stats
