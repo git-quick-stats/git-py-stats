@@ -92,7 +92,7 @@ def branches_by_date(config: Dict[str, Union[str, int]]) -> None:
 
     # Grab the config options from our config.py.
     ignore_authors = config.get("ignore_authors", lambda _s: False)
-    
+
     # Original command:
     # git for-each-ref --sort=committerdate refs/heads/ \
     #     --format='[%(authordate:relative)] %(authorname) %(refname:short)' | cat -n
@@ -104,7 +104,7 @@ def branches_by_date(config: Dict[str, Union[str, int]]) -> None:
     # part the same as before.
     visible_fmt = "[%(authordate:relative)] %(authorname) %(refname:short)"
     format_str = f"{visible_fmt}|%(authoremail)"
-    
+
     cmd = [
         "git",
         "for-each-ref",
@@ -143,6 +143,7 @@ def branches_by_date(config: Dict[str, Union[str, int]]) -> None:
     print("All branches (sorted by most recent commit):\n")
     for idx, line in enumerate(visible_lines, 1):
         print(f"\t{idx}  {line}")
+
 
 def contributors(config: Dict[str, Union[str, int]]) -> None:
     """
